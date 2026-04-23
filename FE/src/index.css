@@ -1,0 +1,9 @@
+@import "tailwindcss";
+.custom-scrollbar::-webkit-scrollbar {
+  display: none; /* Cho Chrome, Safari và Opera */
+}
+
+.custom-scrollbar {
+  -ms-overflow-style: none;  /* Cho Internet Explorer và Edge */
+  scrollbar-width: none;  /* Cho Firefox */
+}

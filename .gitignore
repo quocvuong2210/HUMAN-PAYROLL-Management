@@ -1,0 +1,13 @@
+BE/.venv/
+BE/__pycache__/
+BE/*.pyc
+
+# Frontend
+FE/node_modules/
+FE/dist/
+
+# Env
+.env
+
+# IDE
+.vscode/

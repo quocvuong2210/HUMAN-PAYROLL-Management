@@ -44,7 +44,23 @@ export default function AlertsPage() {
     { id: 'salary', label: t.tabs.salary, icon: AlertTriangle, endpoint: '/unusual-salaries' },
     { id: 'attendance', label: t.tabs.attendance, icon: Fingerprint, endpoint: '/absenteeism' },
   ];
+  
+const formatDate = (dateString, type = 'month', lang = 'vi') => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "N/A";
 
+  if (type === 'month') {
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    // Kiểm tra ngôn ngữ để trả về format phù hợp
+    return lang === 'vi' 
+      ? `Tháng ${month}/${year}` 
+      : `Month ${month}/${year}`;
+  }
+  
+  // Trả về ngày/tháng/năm tùy theo locale
+  return date.toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US');
+};
   const fetchData = useCallback(async () => {
     setLoading(true);
     const currentTab = tabs.find(tab => tab.id === activeTab);
@@ -116,31 +132,31 @@ export default function AlertsPage() {
           />
         </div>
       </div>
-
-      {/* TAB SELECTOR */}
-      <div className={`flex gap-1 p-1 rounded-xl w-fit ${isDarkMode ? 'bg-slate-900/50' : 'bg-slate-200/50'} overflow-x-auto no-scrollbar`}>
-        {tabs.map((tab) => (
-          <button 
-            key={tab.id} onClick={() => { setActiveTab(tab.id); setSelectedEmployee(null); }} 
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all shrink-0 ${
-              activeTab === tab.id 
-                ? 'bg-blue-600 text-white shadow-md font-bold' 
-                : 'text-slate-500 hover:bg-blue-500/10 hover:text-blue-500'
-            }`}
-          >
-            <tab.icon size={14} />
-            <span className="text-[11px] uppercase tracking-wider">{tab.label}</span>
-          </button>
-        ))}
-      </div>
+{/* TAB SELECTOR: Dạng Gạch chân (Underline Tabs) */}
+<div className="flex gap-6 border-b border-gray-200 overflow-x-auto no-scrollbar">
+  {tabs.map((tab) => (
+    <button 
+      key={tab.id}
+      onClick={() => { setActiveTab(tab.id); setSelectedEmployee(null); }} 
+      className={`pb-2 flex items-center gap-2 border-b-2 transition-all duration-200 shrink-0 ${
+        activeTab === tab.id 
+          ? 'border-blue-500 text-blue-500 font-semibold' 
+          : 'border-transparent text-gray-500 hover:text-gray-700'
+      }`}
+    >
+      <tab.icon size={16} />
+      <span className="text-[11px] uppercase tracking-wider">{tab.label}</span>
+    </button>
+  ))}
+</div>
 
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
         
         {/* DATA TABLE */}
-        <div className={`flex-1 rounded-2xl border flex flex-col overflow-hidden ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse">
+        <div className={`flex-1 rounded-xs border flex flex-col overflow-hidden ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+          <div className="flex-1  overflow-y-auto custom-scrollbar">
+            <table className="w-full rounded-xs text-left border-collapse">
               <thead className={`sticky top-0 z-10 text-[10px] uppercase font-bold tracking-wider ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-50 text-slate-500'}`}>
                 <tr>
                   <th className="px-6 py-4">{t.cols.name}</th>
@@ -158,7 +174,7 @@ export default function AlertsPage() {
                       key={idx} onClick={() => fetchEmployeeDetail(item.EmployeeID)}
                       className={`hover:bg-blue-600/5 transition-all cursor-pointer group ${selectedEmployee?.EmployeeID === item.EmployeeID ? (isDarkMode ? 'bg-blue-600/10' : 'bg-blue-50') : ''}`}
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-2">
                         <div className="flex items-center gap-3">
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs ${isDarkMode ? 'bg-slate-800 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>
                             {item.FullName?.charAt(0)}
@@ -169,8 +185,8 @@ export default function AlertsPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 opacity-70 font-medium">{item.DepartmentName}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-2 opacity-70 font-medium">{item.DepartmentName}</td>
+                      <td className="px-6 py-2">
                          {activeTab === 'birthday' && (
                            <div className="flex flex-col">
                              <span className="text-blue-500 font-bold">Ngày {item.BirthDay}</span>
@@ -192,7 +208,7 @@ export default function AlertsPage() {
                             </span>
                          )}
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-2 text-right">
                         <ChevronRight size={16} className={`transition-all opacity-0 group-hover:opacity-100 group-hover:translate-x-1 text-blue-500`} />
                       </td>
                     </tr>
@@ -213,7 +229,6 @@ export default function AlertsPage() {
                   <Info size={16} className="text-blue-500" />
                   <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-500">{t.detail}</h3>
                 </div>
-                <button onClick={() => setSelectedEmployee(null)} className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-full transition-colors"><X size={18} /></button>
              </div>
              
              <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
@@ -256,7 +271,9 @@ export default function AlertsPage() {
                         <div className="space-y-3">
                           {selectedEmployee.attendance_history?.length > 0 ? selectedEmployee.attendance_history.slice(0, 3).map((a, i) => (
                             <div key={i} className={`p-4 rounded-xl flex items-center justify-between border ${isDarkMode ? 'bg-slate-800/30 border-slate-800 hover:bg-slate-800/50' : 'bg-white border-slate-100 shadow-sm hover:shadow-md'} transition-all`}>
-                              <span className="text-xs font-black text-blue-500 uppercase">{a.AttendanceMonth}</span>
+                             <span className="text-xs font-black text-blue-500 uppercase">
+  {formatDate(a.AttendanceMonth, 'month', language)}
+</span>
                               <div className="flex gap-6">
                                  <div className="flex flex-col items-end"><span className="opacity-40 text-[8px] font-bold">CÔNG</span><span className="text-green-500 font-mono font-bold">{a.WorkDays}</span></div>
                                  <div className="flex flex-col items-end"><span className="opacity-40 text-[8px] font-bold">NGHỈ</span><span className="text-rose-500 font-mono font-bold">{a.AbsentDays}</span></div>
@@ -274,9 +291,13 @@ export default function AlertsPage() {
                           {selectedEmployee.salary_history?.length > 0 ? selectedEmployee.salary_history.slice(0, 3).map((s, i) => (
                             <div key={i} className={`p-4 rounded-xl border ${isDarkMode ? 'bg-slate-800/30 border-slate-800 hover:bg-slate-800/50' : 'bg-white border-slate-100 shadow-sm hover:shadow-md'} transition-all`}>
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-bold opacity-60">Tháng {s.SalaryMonth}</span>
-                                <span className="font-black text-blue-500 font-mono">{s.net_fmt || formatCurrency(s.NetSalary)} đ</span>
-                              </div>
+ <span className="text-xs font-bold opacity-60">
+  {formatDate(s.SalaryMonth, 'month', language)}
+</span>
+  <span className="font-black text-blue-500 font-mono">
+    {s.net_fmt || formatCurrency(s.NetSalary)} đ
+  </span>
+</div>
                             </div>
                           )) : <p className="text-xs opacity-30 italic text-center">Không có dữ liệu lương</p>}
                         </div>

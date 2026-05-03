@@ -96,7 +96,7 @@ const fetchData = useCallback(async () => {
         console.error("Lỗi:", err);
         setError(language === 'vi' ? "Không thể tải dữ liệu. Vui lòng thử lại!" : "Failed to load data.");
     } finally {
-        setLoading(false);
+        
     }
 }, [selectedMonth, selectedYear, language]);
 

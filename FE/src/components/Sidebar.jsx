@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   Home, Users, Building2, DollarSign, AlertTriangle, 
-  BarChart3, User, Box, ChevronLeft, ChevronRight
+  BarChart3, User, Box, ChevronLeft, ChevronRight,
+  ShieldCheck
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -16,7 +17,8 @@ const translations = {
     analysis: "Phân tích & Cá nhân",
     alerts: "Thông báo",
     reports: "Báo cáo số liệu",
-    profile: "Hồ sơ cá nhân"
+    profile: "Hồ sơ cá nhân",
+    accessLogs: "Nhật ký truy cập"
   },
   en: {
     system: "System",
@@ -27,7 +29,8 @@ const translations = {
     analysis: "Analysis & Personal",
     alerts: "Alerts",
     reports: "Reports",
-    profile: "Profile"
+    profile: "Profile",
+    accessLogs: "Access Logs"
   }
 };
 
@@ -38,7 +41,7 @@ const NavItem = ({ icon: Icon, label, to, isCollapsed, isDarkMode }) => {
   return (
     <Link to={to}>
       <div
-        className={`flex items-center gap-3 px-4 py-3 transition-all duration-200 mx-2 rounded-xl mb-1
+        className={`flex items-center gap-3 px-4 py-3 transition-all duration-200 mx-2 rounded-xs mb-1
         ${isActive 
           ? 'bg-indigo-600 text-white shadow-xs shadow-indigo-500/30' 
           : isDarkMode 
@@ -112,7 +115,7 @@ export default function SideBar({ isDarkMode, language }) {
         <NavItem icon={Users} label={t.employees} to="/employees" isCollapsed={isCollapsed} isDarkMode={isDarkMode} />
         <NavItem icon={Building2} label={t.structure} to="/departments" isCollapsed={isCollapsed} isDarkMode={isDarkMode} />
         <NavItem icon={DollarSign} label={t.payroll} to="/salaries" isCollapsed={isCollapsed} isDarkMode={isDarkMode} />
-
+       
         {!isCollapsed && (
           <p className={`px-8 text-[10px] font-bold uppercase tracking-widest mt-8 mb-4 
             ${isDarkMode ? 'text-slate-600' : 'text-slate-400'}`}>
@@ -123,6 +126,13 @@ export default function SideBar({ isDarkMode, language }) {
         <NavItem icon={AlertTriangle} label={t.alerts} to="/alerts" isCollapsed={isCollapsed} isDarkMode={isDarkMode} />
         <NavItem icon={BarChart3} label={t.reports} to="/reports" isCollapsed={isCollapsed} isDarkMode={isDarkMode} />
         <NavItem icon={User} label={t.profile} to="/profile" isCollapsed={isCollapsed} isDarkMode={isDarkMode} />
+         <NavItem 
+  icon={ShieldCheck} 
+  label={t.accessLogs} 
+  to="/access-logs" 
+  isCollapsed={isCollapsed} 
+  isDarkMode={isDarkMode} 
+/>
       </div>
     </div>
   );

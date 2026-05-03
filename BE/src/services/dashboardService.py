@@ -7,14 +7,12 @@ class DashboardService:
         self.db_mssql = DashboardModel(db_type="mssql") 
 
     # --- CÁC HÀM CŨ CỦA BẠN ---
-    def get_all_salaries(self):
-        return self.db_mysql.get_all_salaries() 
+    
 
-    def get_salary_by_id(self, salary_id):
-        return self.db_mysql.get_salary_by_id(salary_id)
+    
 
     def get_all_employees(self):
-        return self.db_mssql.get_all_employees()
+        return self.db_mssql.get_total_employees()
 
     def get_employee_by_id(self, emp_id):
         return self.db_mssql.get_employee_by_id(emp_id)
@@ -26,6 +24,7 @@ class DashboardService:
         """
         # 1. Lấy dữ liệu nhân sự từ SQL Server
         total_employees = self.db_mssql.get_total_employees()
+        print(f"Total Employees (MSSQL): {total_employees}")
         total_departments = self.db_mssql.get_total_departments()
 
         # 2. Lấy dữ liệu tài chính từ MySQL

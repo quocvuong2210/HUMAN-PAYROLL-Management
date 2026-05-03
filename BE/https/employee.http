@@ -1,0 +1,14 @@
+POST http://127.0.0.1:5000/api/v1/employees/
+Content-Type: application/json
+
+{
+    "FullName": "Nguyễn Văn A",
+    "DateOfBirth": "1995-05-20",
+    "Gender": "Nam",
+    "PhoneNumber": "0951234567",
+    "Email": "van2ya@example.com",
+    "HireDate": "2023-10-25",
+    "DepartmentID": 1,
+    "PositionID": 2,
+    "Status": "Đang làm việc"
+}

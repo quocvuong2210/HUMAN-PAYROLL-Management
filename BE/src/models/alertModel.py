@@ -103,3 +103,4 @@ class AlertModel:
         res['salary_history'] = self.execute_query("SELECT SalaryMonth, BaseSalary, Bonus, Deductions, NetSalary FROM salaries WHERE EmployeeID = :id ORDER BY SalaryMonth DESC LIMIT 5", {"id": employee_id}, True)
         res['attendance_history'] = self.execute_query("SELECT AttendanceMonth, WorkDays, AbsentDays, LeaveDays FROM attendance WHERE EmployeeID = :id ORDER BY AttendanceMonth DESC LIMIT 5", {"id": employee_id}, True)
         return res
+ 

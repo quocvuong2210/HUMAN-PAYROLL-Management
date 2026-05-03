@@ -1,0 +1,45 @@
+
+GET http://localhost:5000/api/v1/positions/
+Content-Type: application/json
+
+###
+GET http://localhost:5000/api/v1/positions/?search=Trưởng
+Content-Type: application/json
+
+7.3 Sắp xếp danh sách chức vụ
+Ví dụ: Sắp xếp theo ID giảm dần (Mới nhất lên đầu)
+GET http://localhost:5000/api/v1/positions/?sort=PositionID&order=DESC
+Content-Type: application/json
+
+7.4 Xem chi tiết một chức vụ theo ID
+Thay {id} bằng ID thực tế (ví dụ: 1)
+GET http://localhost:5000/api/v1/positions/1
+Content-Type: application/json
+
+7.5 Tạo mới một chức vụ
+Lưu ý: MSSQL (Master) sẽ tự sinh ID, sau đó tự động đồng bộ sang MySQL
+###
+POST http://localhost:5000/api/v1/positions/
+Content-Type: application/json
+
+{
+    "PositionName": "Chuyên gia giải pháp AI"
+}
+###
+7.6 Cập nhật tên chức vụ
+Thay 11 bằng ID chức vụ bạn vừa tạo ở bước trên
+PUT http://localhost:5000/api/v1/positions/11
+Content-Type: application/json
+
+{
+"PositionName": "Chuyên gia AI cấp cao (Cập nhật)"
+}
+
+###
+DELETE http://localhost:5000/api/v1/positions/11
+Content-Type: application/json
+
+7.8 Ép buộc đồng bộ dữ liệu (Force Sync)
+Nạp lại toàn bộ dữ liệu từ SQL Server sang MySQL nếu có sai lệch
+POST http://localhost:5000/api/v1/positions/sync
+Content-Type: application/json

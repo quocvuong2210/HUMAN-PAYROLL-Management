@@ -1,0 +1,50 @@
+### ==========================================
+### 6. QUẢN LÝ PHÒNG BAN (DEPARTMENT)
+### ==========================================
+
+### 6.1 Lấy danh sách tất cả phòng ban
+### Endpoint: GET /api/v1/departments/
+GET http://localhost:5000/api/v1/salary/export
+Content-Type: application/json
+
+### 6.2 Tìm kiếm phòng ban theo tên
+### Ví dụ: Tìm phòng ban có chữ "Kế"
+GET http://localhost:5000/api/v1/departments/?search=Kế
+Content-Type: application/json
+
+### 6.3 Sắp xếp danh sách phòng ban
+### Ví dụ: Sắp xếp theo tên từ Z-A
+GET http://localhost:5000/api/v1/departments/?sort=DepartmentName&order=DESC
+Content-Type: application/json
+
+### 6.4 Xem chi tiết một phòng ban theo ID
+### Thay {id} bằng ID thực tế (ví dụ: 1)
+GET http://localhost:5000/api/v1/departments/1
+Content-Type: application/json
+
+### 6.5 Xem thống kê số lượng nhân viên mỗi phòng
+GET http://localhost:5000/api/v1/departments/stats
+Content-Type: application/json
+
+### 6.6 Tạo mới một phòng ban
+POST http://localhost:5000/api/v1/departments/
+Content-Type: application/json
+
+{
+   
+    "DepartmentName": "Phòng Trải nghiệuum khách hàng"
+}
+
+### 6.7 Cập nhật tên phòng ban
+### Thay {id} bằng ID phòng ban vừa tạo (ví dụ: 11)
+PUT http://localhost:5000/api/v1/departments/11
+Content-Type: application/json
+
+{
+    "DepartmentName": "Phòng Dịch vụ khách hàng (Cập nhật)"
+}
+
+### 6.8 Xóa phòng ban
+### Lưu ý: Sẽ lỗi 400 nếu phòng ban đang có nhân viên (theo logic Service)
+DELETE http://localhost:5000/api/v1/departments/21
+Content-Type: application/json

@@ -1,0 +1,985 @@
+### ================================
+### REPORT API TEST (Có bộ lọc)
+### ================================
+
+### 1. DASHBOARD (Lọc tháng 9/2024)
+GET http://localhost:5000/api/v1/reports/dashboard?month=9&year=2024
+Content-Type: application/json
+
+  "data": {
+    "alertReport": [
+      {
+        "AbsentDays": 3,
+        "FullName": "Võ Thành Đạt",
+        "NetSalary": "8700000.00"
+      },
+      {
+        "AbsentDays": 3,
+        "FullName": "Võ Thành Đạt",
+        "NetSalary": "8700000.00"
+      },
+      {
+        "AbsentDays": 4,
+        "FullName": "Đặng Minh Hạnh",
+        "NetSalary": "10000000.00"
+      },
+      {
+        "AbsentDays": 3,
+        "FullName": "Bùi Văn Minh",
+        "NetSalary": "5000000.00"
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Bùi Văn Minh",
+        "NetSalary": "5000000.00"
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Bùi Văn Minh",
+        "NetSalary": "5000000.00"
+      },
+      {
+        "AbsentDays": 3,
+        "FullName": "Võ Thành Đạt",
+        "NetSalary": "8700000.00"
+      },
+      {
+        "AbsentDays": 3,
+        "FullName": "Võ Thành Đạt",
+        "NetSalary": "8700000.00"
+      },
+      {
+        "AbsentDays": 4,
+        "FullName": "Đặng Minh Hạnh",
+        "NetSalary": "10000000.00"
+      },
+      {
+        "AbsentDays": 3,
+        "FullName": "Bùi Văn Minh",
+        "NetSalary": "5000000.00"
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Bùi Văn Minh",
+        "NetSalary": "5000000.00"
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Bùi Văn Minh",
+        "NetSalary": "5000000.00"
+      }
+    ],
+    "attendanceReport": [
+      {
+        "AbsentDays": 1,
+        "FullName": "Nguyễn Văn An",
+        "LeaveDays": 0,
+        "WorkDays": 22
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Lê Thị Bình",
+        "LeaveDays": 1,
+        "WorkDays": 21
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Trần Quốc Cường",
+        "LeaveDays": 0,
+        "WorkDays": 23
+      },
+      {
+        "AbsentDays": 2,
+        "FullName": "Phạm Hồng Dung",
+        "LeaveDays": 0,
+        "WorkDays": 22
+      },
+      {
+        "AbsentDays": 3,
+        "FullName": "Võ Thành Đạt",
+        "LeaveDays": 2,
+        "WorkDays": 18
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Đặng Minh Hạnh",
+        "LeaveDays": 0,
+        "WorkDays": 24
+      },
+      {
+        "AbsentDays": 1,
+        "FullName": "Lưu Trung Hiếu",
+        "LeaveDays": 1,
+        "WorkDays": 20
+      },
+      {
+        "AbsentDays": 2,
+        "FullName": "Ngô Thu Lan",
+        "LeaveDays": 0,
+        "WorkDays": 19
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Bùi Văn Minh",
+        "LeaveDays": 2,
+        "WorkDays": 16
+      },
+      {
+        "AbsentDays": 1,
+        "FullName": "Hoàng Thị Oanh",
+        "LeaveDays": 0,
+        "WorkDays": 22
+      },
+      {
+        "AbsentDays": 1,
+        "FullName": "Nguyễn Văn An",
+        "LeaveDays": 0,
+        "WorkDays": 22
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Lê Thị Bình",
+        "LeaveDays": 1,
+        "WorkDays": 21
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Trần Quốc Cường",
+        "LeaveDays": 0,
+        "WorkDays": 23
+      },
+      {
+        "AbsentDays": 2,
+        "FullName": "Phạm Hồng Dung",
+        "LeaveDays": 0,
+        "WorkDays": 22
+      },
+      {
+        "AbsentDays": 3,
+        "FullName": "Võ Thành Đạt",
+        "LeaveDays": 2,
+        "WorkDays": 18
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Đặng Minh Hạnh",
+        "LeaveDays": 0,
+        "WorkDays": 24
+      },
+      {
+        "AbsentDays": 1,
+        "FullName": "Lưu Trung Hiếu",
+        "LeaveDays": 1,
+        "WorkDays": 20
+      },
+      {
+        "AbsentDays": 2,
+        "FullName": "Ngô Thu Lan",
+        "LeaveDays": 0,
+        "WorkDays": 19
+      },
+      {
+        "AbsentDays": 0,
+        "FullName": "Bùi Văn Minh",
+        "LeaveDays": 2,
+        "WorkDays": 16
+      },
+      {
+        "AbsentDays": 1,
+        "FullName": "Hoàng Thị Oanh",
+        "LeaveDays": 0,
+        "WorkDays": 22
+      }
+    ],
+    "bestEmployee": [
+      {
+        "FullName": "Đặng Minh Hạnh",
+        "SalaryPerDay": "10000000.000000"
+      }
+    ],
+    "employeeDistribution": [
+      {
+        "Status": "Đang làm việc",
+        "Total": 7
+      },
+      {
+        "Status": "Nghỉ phép",
+        "Total": 1
+      },
+      {
+        "Status": "Thử việc",
+        "Total": 1
+      },
+      {
+        "Status": "Thực tập",
+        "Total": 1
+      }
+    ],
+    "payrollDetail": [
+      {
+        "BaseSalary": "12000000.00",
+        "Bonus": "500000.00",
+        "Deductions": "200000.00",
+        "FullName": "Nguyễn Văn An",
+        "NetSalary": "12300000.00"
+      },
+      {
+        "BaseSalary": "10000000.00",
+        "Bonus": "800000.00",
+        "Deductions": "100000.00",
+        "FullName": "Lê Thị Bình",
+        "NetSalary": "10700000.00"
+      },
+      {
+        "BaseSalary": "15000000.00",
+        "Bonus": "600000.00",
+        "Deductions": "0.00",
+        "FullName": "Trần Quốc Cường",
+        "NetSalary": "15600000.00"
+      },
+      {
+        "BaseSalary": "11000000.00",
+        "Bonus": "400000.00",
+        "Deductions": "100000.00",
+        "FullName": "Phạm Hồng Dung",
+        "NetSalary": "11300000.00"
+      },
+      {
+        "BaseSalary": "9000000.00",
+        "Bonus": "0.00",
+        "Deductions": "300000.00",
+        "FullName": "Võ Thành Đạt",
+        "NetSalary": "8700000.00"
+      },
+      {
+        "BaseSalary": "9500000.00",
+        "Bonus": "500000.00",
+        "Deductions": "0.00",
+        "FullName": "Đặng Minh Hạnh",
+        "NetSalary": "10000000.00"
+      },
+      {
+        "BaseSalary": "18000000.00",
+        "Bonus": "1000000.00",
+        "Deductions": "0.00",
+        "FullName": "Lưu Trung Hiếu",
+        "NetSalary": "19000000.00"
+      },
+      {
+        "BaseSalary": "7000000.00",
+        "Bonus": "200000.00",
+        "Deductions": "0.00",
+        "FullName": "Ngô Thu Lan",
+        "NetSalary": "7200000.00"
+      },
+      {
+        "BaseSalary": "5000000.00",
+        "Bonus": "0.00",
+        "Deductions": "0.00",
+        "FullName": "Bùi Văn Minh",
+        "NetSalary": "5000000.00"
+      },
+      {
+        "BaseSalary": "8500000.00",
+        "Bonus": "300000.00",
+        "Deductions": "100000.00",
+        "FullName": "Hoàng Thị Oanh",
+        "NetSalary": "8700000.00"
+      },
+      {
+        "BaseSalary": "12000000.00",
+        "Bonus": "500000.00",
+        "Deductions": "200000.00",
+        "FullName": "Nguyễn Văn An",
+        "NetSalary": "12300000.00"
+      },
+      {
+        "BaseSalary": "10000000.00",
+        "Bonus": "800000.00",
+        "Deductions": "100000.00",
+        "FullName": "Lê Thị Bình",
+        "NetSalary": "10700000.00"
+      },
+      {
+        "BaseSalary": "15000000.00",
+        "Bonus": "600000.00",
+        "Deductions": "0.00",
+        "FullName": "Trần Quốc Cường",
+        "NetSalary": "15600000.00"
+      },
+      {
+        "BaseSalary": "11000000.00",
+        "Bonus": "400000.00",
+        "Deductions": "100000.00",
+        "FullName": "Phạm Hồng Dung",
+        "NetSalary": "11300000.00"
+      },
+      {
+        "BaseSalary": "9000000.00",
+        "Bonus": "0.00",
+        "Deductions": "300000.00",
+        "FullName": "Võ Thành Đạt",
+        "NetSalary": "8700000.00"
+      },
+      {
+        "BaseSalary": "9500000.00",
+        "Bonus": "500000.00",
+        "Deductions": "0.00",
+        "FullName": "Đặng Minh Hạnh",
+        "NetSalary": "10000000.00"
+      },
+      {
+        "BaseSalary": "18000000.00",
+        "Bonus": "1000000.00",
+        "Deductions": "0.00",
+        "FullName": "Lưu Trung Hiếu",
+        "NetSalary": "19000000.00"
+      },
+      {
+        "BaseSalary": "7000000.00",
+        "Bonus": "200000.00",
+        "Deductions": "0.00",
+        "FullName": "Ngô Thu Lan",
+        "NetSalary": "7200000.00"
+      },
+      {
+        "BaseSalary": "5000000.00",
+        "Bonus": "0.00",
+        "Deductions": "0.00",
+        "FullName": "Bùi Văn Minh",
+        "NetSalary": "5000000.00"
+      },
+      {
+        "BaseSalary": "8500000.00",
+        "Bonus": "300000.00",
+        "Deductions": "100000.00",
+        "FullName": "Hoàng Thị Oanh",
+        "NetSalary": "8700000.00"
+      }
+    ],
+    "positionReport": [
+      {
+        "PositionName": "Nhân viên",
+        "Total": 2
+      },
+      {
+        "PositionName": "Phó phòng",
+        "Total": 1
+      },
+      {
+        "PositionName": "Kỹ sư",
+        "Total": 1
+      },
+      {
+        "PositionName": "Trưởng nhóm",
+        "Total": 1
+      },
+      {
+        "PositionName": "Trưởng phòng",
+        "Total": 1
+      },
+      {
+        "PositionName": "Giám đốc",
+        "Total": 1
+      },
+      {
+        "PositionName": "Nhân viên thử việc",
+        "Total": 1
+      },
+      {
+        "PositionName": "Thực tập sinh",
+        "Total": 1
+      },
+      {
+        "PositionName": "Thư ký",
+        "Total": 1
+      }
+    ],
+    "salaryByDept": [
+      {
+        "DepartmentName": "Phòng Sản xuất",
+        "TotalSalary": "38000000.00"
+      },
+      {
+        "DepartmentName": "Phòng Kỹ thuật",
+        "TotalSalary": "31200000.00"
+      },
+      {
+        "DepartmentName": "Phòng Nhân sự",
+        "TotalSalary": "24600000.00"
+      },
+      {
+        "DepartmentName": "Phòng Kinh doanh",
+        "TotalSalary": "22600000.00"
+      },
+      {
+        "DepartmentName": "Phòng Kế toán",
+        "TotalSalary": "21400000.00"
+      },
+      {
+        "DepartmentName": "Phòng Marketing",
+        "TotalSalary": "20000000.00"
+      },
+      {
+        "DepartmentName": "Phòng Hành chính",
+        "TotalSalary": "17400000.00"
+      },
+      {
+        "DepartmentName": "Phòng Dịch vụ khách hàng",
+        "TotalSalary": "17400000.00"
+      },
+      {
+        "DepartmentName": "Phòng Bảo trì",
+        "TotalSalary": "14400000.00"
+      },
+      {
+        "DepartmentName": "Phòng Nghiên cứu & Phát triển",
+        "TotalSalary": "10000000.00"
+      }
+    ],
+    "topDepartment": [
+      {
+        "DepartmentName": "Phòng Sản xuất",
+        "TotalCost": "38000000.00"
+      }
+    ]
+  },
+  "status": "success"
+}
+### 2. SALARY BY DEPARTMENT
+GET http://localhost:5000/api/v1/reports/salary-by-department?month=9&year=2024
+Content-Type: application/json
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.6 Python/3.11.9
+Date: Sun, 03 May 2026 06:12:08 GMT
+Content-Type: application/json
+Content-Length: 1010
+Access-Control-Allow-Origin: *
+Connection: close
+
+{
+  "data": [
+    {
+      "DepartmentName": "Phòng Sản xuất",
+      "TotalSalary": "38000000.00"
+    },
+    {
+      "DepartmentName": "Phòng Kỹ thuật",
+      "TotalSalary": "31200000.00"
+    },
+    {
+      "DepartmentName": "Phòng Nhân sự",
+      "TotalSalary": "24600000.00"
+    },
+    {
+      "DepartmentName": "Phòng Kinh doanh",
+      "TotalSalary": "22600000.00"
+    },
+    {
+      "DepartmentName": "Phòng Kế toán",
+      "TotalSalary": "21400000.00"
+    },
+    {
+      "DepartmentName": "Phòng Marketing",
+      "TotalSalary": "20000000.00"
+    },
+    {
+      "DepartmentName": "Phòng Hành chính",
+      "TotalSalary": "17400000.00"
+    },
+    {
+      "DepartmentName": "Phòng Dịch vụ khách hàng",
+      "TotalSalary": "17400000.00"
+    },
+    {
+      "DepartmentName": "Phòng Bảo trì",
+      "TotalSalary": "14400000.00"
+    },
+    {
+      "DepartmentName": "Phòng Nghiên cứu & Phát triển",
+      "TotalSalary": "10000000.00"
+    }
+  ],
+  "status": "success"
+}
+### 3. EMPLOYEE DISTRIBUTION (Không lọc theo thời gian)
+GET http://localhost:5000/api/v1/reports/employee-distribution
+Content-Type: application/json
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.6 Python/3.11.9
+Date: Sun, 03 May 2026 06:12:19 GMT
+Content-Type: application/json
+Content-Length: 295
+Access-Control-Allow-Origin: *
+Connection: close
+
+{
+  "data": [
+    {
+      "Status": "Đang làm việc",
+      "Total": 7
+    },
+    {
+      "Status": "Nghỉ phép",
+      "Total": 1
+    },
+    {
+      "Status": "Thử việc",
+      "Total": 1
+    },
+    {
+      "Status": "Thực tập",
+      "Total": 1
+    }
+  ],
+  "status": "success"
+}
+
+### 4. POSITION REPORT (Không lọc theo thời gian)
+GET http://localhost:5000/api/v1/reports/position
+Content-Type: application/json
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.6 Python/3.11.9
+Date: Sun, 03 May 2026 06:12:23 GMT
+Content-Type: application/json
+Content-Length: 668
+Access-Control-Allow-Origin: *
+Connection: close
+
+{
+  "data": [
+    {
+      "PositionName": "Nhân viên",
+      "Total": 2
+    },
+    {
+      "PositionName": "Phó phòng",
+      "Total": 1
+    },
+    {
+      "PositionName": "Kỹ sư",
+      "Total": 1
+    },
+    {
+      "PositionName": "Trưởng nhóm",
+      "Total": 1
+    },
+    {
+      "PositionName": "Trưởng phòng",
+      "Total": 1
+    },
+    {
+      "PositionName": "Giám đốc",
+      "Total": 1
+    },
+    {
+      "PositionName": "Nhân viên thử việc",
+      "Total": 1
+    },
+    {
+      "PositionName": "Thực tập sinh",
+      "Total": 1
+    },
+    {
+      "PositionName": "Thư ký",
+      "Total": 1
+    }
+  ],
+  "status": "success"
+}
+
+### 5. ATTENDANCE REPORT
+GET http://localhost:5000/api/v1/reports/attendance?month=9&year=2024
+Content-Type: application/json
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.6 Python/3.11.9
+Date: Sun, 03 May 2026 06:12:27 GMT
+Content-Type: application/json
+Content-Length: 2396
+Access-Control-Allow-Origin: *
+Connection: close
+
+{
+  "data": [
+    {
+      "AbsentDays": 1,
+      "FullName": "Nguyễn Văn An",
+      "LeaveDays": 0,
+      "WorkDays": 22
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Lê Thị Bình",
+      "LeaveDays": 1,
+      "WorkDays": 21
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Trần Quốc Cường",
+      "LeaveDays": 0,
+      "WorkDays": 23
+    },
+    {
+      "AbsentDays": 2,
+      "FullName": "Phạm Hồng Dung",
+      "LeaveDays": 0,
+      "WorkDays": 22
+    },
+    {
+      "AbsentDays": 3,
+      "FullName": "Võ Thành Đạt",
+      "LeaveDays": 2,
+      "WorkDays": 18
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Đặng Minh Hạnh",
+      "LeaveDays": 0,
+      "WorkDays": 24
+    },
+    {
+      "AbsentDays": 1,
+      "FullName": "Lưu Trung Hiếu",
+      "LeaveDays": 1,
+      "WorkDays": 20
+    },
+    {
+      "AbsentDays": 2,
+      "FullName": "Ngô Thu Lan",
+      "LeaveDays": 0,
+      "WorkDays": 19
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Bùi Văn Minh",
+      "LeaveDays": 2,
+      "WorkDays": 16
+    },
+    {
+      "AbsentDays": 1,
+      "FullName": "Hoàng Thị Oanh",
+      "LeaveDays": 0,
+      "WorkDays": 22
+    },
+    {
+      "AbsentDays": 1,
+      "FullName": "Nguyễn Văn An",
+      "LeaveDays": 0,
+      "WorkDays": 22
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Lê Thị Bình",
+      "LeaveDays": 1,
+      "WorkDays": 21
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Trần Quốc Cường",
+      "LeaveDays": 0,
+      "WorkDays": 23
+    },
+    {
+      "AbsentDays": 2,
+      "FullName": "Phạm Hồng Dung",
+      "LeaveDays": 0,
+      "WorkDays": 22
+    },
+    {
+      "AbsentDays": 3,
+      "FullName": "Võ Thành Đạt",
+      "LeaveDays": 2,
+      "WorkDays": 18
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Đặng Minh Hạnh",
+      "LeaveDays": 0,
+      "WorkDays": 24
+    },
+    {
+      "AbsentDays": 1,
+      "FullName": "Lưu Trung Hiếu",
+      "LeaveDays": 1,
+      "WorkDays": 20
+    },
+    {
+      "AbsentDays": 2,
+      "FullName": "Ngô Thu Lan",
+      "LeaveDays": 0,
+      "WorkDays": 19
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Bùi Văn Minh",
+      "LeaveDays": 2,
+      "WorkDays": 16
+    },
+    {
+      "AbsentDays": 1,
+      "FullName": "Hoàng Thị Oanh",
+      "LeaveDays": 0,
+      "WorkDays": 22
+    }
+  ],
+  "status": "success"
+}
+
+### 6. PAYROLL DETAIL
+GET http://localhost:5000/api/v1/reports/payroll?month=9&year=2024
+Content-Type: application/json
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.6 Python/3.11.9
+Date: Sun, 03 May 2026 06:12:30 GMT
+Content-Type: application/json
+Content-Length: 3570
+Access-Control-Allow-Origin: *
+Connection: close
+
+{
+  "data": [
+    {
+      "BaseSalary": "12000000.00",
+      "Bonus": "500000.00",
+      "Deductions": "200000.00",
+      "FullName": "Nguyễn Văn An",
+      "NetSalary": "12300000.00"
+    },
+    {
+      "BaseSalary": "10000000.00",
+      "Bonus": "800000.00",
+      "Deductions": "100000.00",
+      "FullName": "Lê Thị Bình",
+      "NetSalary": "10700000.00"
+    },
+    {
+      "BaseSalary": "15000000.00",
+      "Bonus": "600000.00",
+      "Deductions": "0.00",
+      "FullName": "Trần Quốc Cường",
+      "NetSalary": "15600000.00"
+    },
+    {
+      "BaseSalary": "11000000.00",
+      "Bonus": "400000.00",
+      "Deductions": "100000.00",
+      "FullName": "Phạm Hồng Dung",
+      "NetSalary": "11300000.00"
+    },
+    {
+      "BaseSalary": "9000000.00",
+      "Bonus": "0.00",
+      "Deductions": "300000.00",
+      "FullName": "Võ Thành Đạt",
+      "NetSalary": "8700000.00"
+    },
+    {
+      "BaseSalary": "9500000.00",
+      "Bonus": "500000.00",
+      "Deductions": "0.00",
+      "FullName": "Đặng Minh Hạnh",
+      "NetSalary": "10000000.00"
+    },
+    {
+      "BaseSalary": "18000000.00",
+      "Bonus": "1000000.00",
+      "Deductions": "0.00",
+      "FullName": "Lưu Trung Hiếu",
+      "NetSalary": "19000000.00"
+    },
+    {
+      "BaseSalary": "7000000.00",
+      "Bonus": "200000.00",
+      "Deductions": "0.00",
+      "FullName": "Ngô Thu Lan",
+      "NetSalary": "7200000.00"
+    },
+    {
+      "BaseSalary": "5000000.00",
+      "Bonus": "0.00",
+      "Deductions": "0.00",
+      "FullName": "Bùi Văn Minh",
+      "NetSalary": "5000000.00"
+    },
+    {
+      "BaseSalary": "8500000.00",
+      "Bonus": "300000.00",
+      "Deductions": "100000.00",
+      "FullName": "Hoàng Thị Oanh",
+      "NetSalary": "8700000.00"
+    },
+    {
+      "BaseSalary": "12000000.00",
+      "Bonus": "500000.00",
+      "Deductions": "200000.00",
+      "FullName": "Nguyễn Văn An",
+      "NetSalary": "12300000.00"
+    },
+    {
+      "BaseSalary": "10000000.00",
+      "Bonus": "800000.00",
+      "Deductions": "100000.00",
+      "FullName": "Lê Thị Bình",
+      "NetSalary": "10700000.00"
+    },
+    {
+      "BaseSalary": "15000000.00",
+      "Bonus": "600000.00",
+      "Deductions": "0.00",
+      "FullName": "Trần Quốc Cường",
+      "NetSalary": "15600000.00"
+    },
+    {
+      "BaseSalary": "11000000.00",
+      "Bonus": "400000.00",
+      "Deductions": "100000.00",
+      "FullName": "Phạm Hồng Dung",
+      "NetSalary": "11300000.00"
+    },
+    {
+      "BaseSalary": "9000000.00",
+      "Bonus": "0.00",
+      "Deductions": "300000.00",
+      "FullName": "Võ Thành Đạt",
+      "NetSalary": "8700000.00"
+    },
+    {
+      "BaseSalary": "9500000.00",
+      "Bonus": "500000.00",
+      "Deductions": "0.00",
+      "FullName": "Đặng Minh Hạnh",
+      "NetSalary": "10000000.00"
+    },
+    {
+      "BaseSalary": "18000000.00",
+      "Bonus": "1000000.00",
+      "Deductions": "0.00",
+      "FullName": "Lưu Trung Hiếu",
+      "NetSalary": "19000000.00"
+    },
+    {
+      "BaseSalary": "7000000.00",
+      "Bonus": "200000.00",
+      "Deductions": "0.00",
+      "FullName": "Ngô Thu Lan",
+      "NetSalary": "7200000.00"
+    },
+    {
+      "BaseSalary": "5000000.00",
+      "Bonus": "0.00",
+      "Deductions": "0.00",
+      "FullName": "Bùi Văn Minh",
+      "NetSalary": "5000000.00"
+    },
+    {
+      "BaseSalary": "8500000.00",
+      "Bonus": "300000.00",
+      "Deductions": "100000.00",
+      "FullName": "Hoàng Thị Oanh",
+      "NetSalary": "8700000.00"
+    }
+  ],
+  "status": "success"
+}
+
+### 7. ALERT REPORT
+GET http://localhost:5000/api/v1/reports/alert?month=9&year=2024
+Content-Type: application/json
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.6 Python/3.11.9
+Date: Sun, 03 May 2026 06:12:36 GMT
+Content-Type: application/json
+Content-Length: 1314
+Access-Control-Allow-Origin: *
+Connection: close
+
+{
+  "data": [
+    {
+      "AbsentDays": 3,
+      "FullName": "Võ Thành Đạt",
+      "NetSalary": "8700000.00"
+    },
+    {
+      "AbsentDays": 3,
+      "FullName": "Võ Thành Đạt",
+      "NetSalary": "8700000.00"
+    },
+    {
+      "AbsentDays": 4,
+      "FullName": "Đặng Minh Hạnh",
+      "NetSalary": "10000000.00"
+    },
+    {
+      "AbsentDays": 3,
+      "FullName": "Bùi Văn Minh",
+      "NetSalary": "5000000.00"
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Bùi Văn Minh",
+      "NetSalary": "5000000.00"
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Bùi Văn Minh",
+      "NetSalary": "5000000.00"
+    },
+    {
+      "AbsentDays": 3,
+      "FullName": "Võ Thành Đạt",
+      "NetSalary": "8700000.00"
+    },
+    {
+      "AbsentDays": 3,
+      "FullName": "Võ Thành Đạt",
+      "NetSalary": "8700000.00"
+    },
+    {
+      "AbsentDays": 4,
+      "FullName": "Đặng Minh Hạnh",
+      "NetSalary": "10000000.00"
+    },
+    {
+      "AbsentDays": 3,
+      "FullName": "Bùi Văn Minh",
+      "NetSalary": "5000000.00"
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Bùi Văn Minh",
+      "NetSalary": "5000000.00"
+    },
+    {
+      "AbsentDays": 0,
+      "FullName": "Bùi Văn Minh",
+      "NetSalary": "5000000.00"
+    }
+  ],
+  "status": "success"
+}
+
+### 8. TOP DEPARTMENT
+GET http://localhost:5000/api/v1/reports/top-department?month=9&year=2024
+Content-Type: application/json
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.6 Python/3.11.9
+Date: Sun, 03 May 2026 06:12:55 GMT
+Content-Type: application/json
+Content-Length: 135
+Access-Control-Allow-Origin: *
+Connection: close
+
+{
+  "data": [
+    {
+      "DepartmentName": "Phòng Sản xuất",
+      "TotalCost": "38000000.00"
+    }
+  ],
+  "status": "success"
+}
+
+### 9. BEST EMPLOYEE
+GET http://localhost:5000/api/v1/reports/best-employee?month=9&year=2024
+Content-Type: application/json

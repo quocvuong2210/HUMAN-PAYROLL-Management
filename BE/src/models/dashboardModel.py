@@ -20,13 +20,23 @@ class DashboardModel:
             return result.rowcount
 
     # --- QUẢN LÝ NHÂN VIÊN & LƯƠNG CƠ BẢN ---
-    # Tổng số nhân viên
+    # Tổng số nhân viê
+    # Tổng số nhân viên (Nên lấy từ bảng payroll để đồng nhất dữ liệu Dashboard)
     def get_total_employees(self):
-        sql = "SELECT COUNT(*) as Total FROM Employees"
+        # Nếu đang dùng MySQL thì bảng là employees_payroll
+        # Nếu đang dùng MSSQL thì bảng là Employees
+        table_name = "employees_payroll" if "mysql" in str(self.engine.url) else "Employees"
+        
+        sql = f"SELECT COUNT(*) as Total FROM {table_name}"
         result = self.execute_query(sql, fetch=True)
+        
         return result[0]['Total'] if result else 0
+
+    # Tổng số phòng ban
     def get_total_departments(self):
-        sql = "SELECT COUNT(*) as Total FROM Departments"
+        table_name = "departments_payroll" if "mysql" in str(self.engine.url) else "Departments"
+        
+        sql = f"SELECT COUNT(*) as Total FROM {table_name}"
         result = self.execute_query(sql, fetch=True)
         return result[0]['Total'] if result else 0
    

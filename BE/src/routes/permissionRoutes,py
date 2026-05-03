@@ -1,0 +1,22 @@
+from flask import Blueprint
+from src.controllers.permisstionController import PermissionController
+from flask import request, jsonify # Thêm request vào đây
+
+permission_bp = Blueprint('permission_bp', __name__)
+perm_ctrl = PermissionController()
+
+# Route: Lấy danh sách quyền của user (ví dụ: dùng khi load trang để ẩn/hiện nút)
+@permission_bp.route('/permissions/<int:user_id>', methods=['GET'])
+def get_user_permissions(user_id):
+    return perm_ctrl.get_permissions(user_id)
+
+# Route: Kiểm tra quyền cụ thể (dùng cho middleware hoặc trước khi thực hiện hành động)
+@permission_bp.route('/permissions/check', methods=['POST'])
+def check_permission():
+    data = request.get_json()
+    return perm_ctrl.check_access(data['user_id'], data['function_name'])
+
+# Route: Gán vai trò cho user (dành cho Admin)
+@permission_bp.route('/admin/assign-role', methods=['POST'])
+def assign_role():
+    return perm_ctrl.assign_role()

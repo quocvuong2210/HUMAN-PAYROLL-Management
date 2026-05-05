@@ -1,0 +1,481 @@
+### ============================================
+### TEST ĐĂNG NHẬP - ĐĂNG KÝ - PHÂN QUYỀN
+### ============================================
+### 
+### Hướng dẫn sử dụng:
+### 1. Start backend: python BE/app.py
+### 2. Click "Send Request" ở mỗi request
+### 3. Copy token từ response
+### 4. Paste vào @token bên dưới
+### 
+### ============================================
+
+@baseUrl = http://localhost:5000
+
+### ============================================
+### PHẦN 1: ĐĂNG KÝ TÀI KHOẢN MỚI
+### ============================================
+
+### 1. Đăng ký user mới
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "testuser@company.com",
+  "password": "test123",
+  "phone": "0987654321",
+  "dob": "1995-05-15",
+  "gender": "Nam"
+}
+
+# Response mong đợi:
+# {
+#   "status": "success",
+#   "message": "User registered successfully"
+# }
+
+###
+
+### ============================================
+### PHẦN 2: ĐĂNG NHẬP
+### ============================================
+
+### 2.1. Đăng nhập - SUPER_ADMIN
+# @name loginAdmin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+# Response mong đợi:
+# {
+#   "status": "success",
+#   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#   "user": {
+#     "userId": 1,
+#     "username": "admin",
+#     "email": "admin@company.com",
+#     "roles": ["SUPER_ADMIN"],
+#     "permissions": [...],
+#     "functions": [...]
+#   }
+# }
+
+###
+
+### 2.2. Đăng nhập - HR_MANAGER
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "hr_manager",
+  "password": "admin123"
+}
+
+###
+
+### 2.3. Đăng nhập - PAYROLL_ACCOUNTANT
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "accountant",
+  "password": "admin123"
+}
+
+###
+
+### 2.4. Đăng nhập - EMPLOYEE
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "employee",
+  "password": "admin123"
+}
+
+###
+
+### 2.5. Đăng nhập - User vừa đăng ký
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "test123"
+}
+
+###
+
+### ============================================
+### PHẦN 3: PASTE TOKEN VÀO ĐÂY
+### ============================================
+### Sau khi đăng nhập, copy token và paste vào đây
+
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@hrToken = PASTE_HR_TOKEN_HERE
+@accountantToken = PASTE_ACCOUNTANT_TOKEN_HERE
+@employeeToken = PASTE_EMPLOYEE_TOKEN_HERE
+
+### ============================================
+### PHẦN 4: TẠO USER VỚI PHÂN QUYỀN
+### ============================================
+
+### 4.1. ✅ ADMIN tạo user với role HR_MANAGER (Should SUCCESS)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "username": "newhr",
+  "email": "newhr@company.com",
+  "password": "hr123",
+  "phone": "0912345678",
+  "dob": "1990-01-01",
+  "gender": "Nữ",
+  "roleIds": [2]
+}
+
+# Response mong đợi:
+# {
+#   "status": "success",
+#   "message": "User created successfully",
+#   "data": {
+#     "userId": 5,
+#     "username": "newhr",
+#     "roles": ["HR_MANAGER"]
+#   }
+# }
+
+###
+
+### 4.2. ✅ ADMIN tạo user với nhiều roles (Should SUCCESS)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "username": "multiuser",
+  "email": "multi@company.com",
+  "password": "multi123",
+  "phone": "0923456789",
+  "roleIds": [2, 4]
+}
+
+# User này sẽ có 2 roles: HR_MANAGER và EMPLOYEE
+
+###
+
+### 4.3. ❌ HR_MANAGER cố tạo user (Should FAIL - 403)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: application/json
+Authorization: Bearer {{hrToken}}
+
+{
+  "username": "failuser",
+  "email": "fail@company.com",
+  "password": "fail123",
+  "roleIds": [4]
+}
+
+# Response mong đợi:
+# {
+#   "status": "error",
+#   "message": "Access denied. Required roles: SUPER_ADMIN"
+# }
+
+###
+
+### 4.4. ❌ EMPLOYEE cố tạo user (Should FAIL - 403)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: application/json
+Authorization: Bearer {{employeeToken}}
+
+{
+  "username": "failuser2",
+  "email": "fail2@company.com",
+  "password": "fail123",
+  "roleIds": [4]
+}
+
+###
+
+### ============================================
+### PHẦN 5: XEM DANH SÁCH USERS VỚI ROLES
+### ============================================
+
+### 5.1. ✅ ADMIN xem users (Should SUCCESS)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer {{adminToken}}
+
+# Response mong đợi:
+# {
+#   "status": "success",
+#   "data": [
+#     {
+#       "UserID": 1,
+#       "Username": "admin",
+#       "Email": "admin@company.com",
+#       "Roles": ["SUPER_ADMIN"],
+#       "RoleIDs": [1],
+#       "Status": "ACTIVE",
+#       ...
+#     }
+#   ]
+# }
+
+###
+
+### 5.2. ❌ HR_MANAGER xem users (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer {{hrToken}}
+
+###
+
+### 5.3. ❌ EMPLOYEE xem users (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### ============================================
+### PHẦN 6: XEM ACCESS LOGS
+### ============================================
+
+### 6.1. ✅ ADMIN xem access logs (Should SUCCESS)
+GET {{baseUrl}}/api/v1/admin/access-logs
+Authorization: Bearer {{adminToken}}
+
+# Response mong đợi:
+# {
+#   "status": "success",
+#   "data": [
+#     {
+#       "LogID": 1,
+#       "UserID": 1,
+#       "Username": "admin",
+#       "Email": "admin@company.com",
+#       "Action": "LOGIN_SUCCESS",
+#       "UserRoles": ["SUPER_ADMIN"],
+#       "IPAddress": "127.0.0.1",
+#       "AccessTime": "2026-05-04T10:00:00"
+#     }
+#   ]
+# }
+
+###
+
+### 6.2. ❌ HR_MANAGER xem access logs (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/access-logs
+Authorization: Bearer {{hrToken}}
+
+###
+
+### ============================================
+### PHẦN 7: KIỂM TRA PHÂN QUYỀN KHÁC
+### ============================================
+
+### 7.1. ✅ HR_MANAGER xem employees (Should SUCCESS)
+GET {{baseUrl}}/api/v1/employees
+Authorization: Bearer {{hrToken}}
+
+###
+
+### 7.2. ❌ EMPLOYEE xem employees (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/employees
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### 7.3. ✅ PAYROLL_ACCOUNTANT xem salaries (Should SUCCESS)
+GET {{baseUrl}}/api/v1/salaries
+Authorization: Bearer {{accountantToken}}
+
+###
+
+### 7.4. ❌ HR_MANAGER xem salaries (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/salaries
+Authorization: Bearer {{hrToken}}
+
+###
+
+### ============================================
+### PHẦN 8: CẬP NHẬT USER
+### ============================================
+
+### 8.1. ✅ ADMIN cập nhật user (Should SUCCESS)
+PUT {{baseUrl}}/api/v1/auth/users/5
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "username": "newhr_updated",
+  "email": "newhr_updated@company.com",
+  "phone": "0999999999",
+  "status": "ACTIVE"
+}
+
+###
+
+### ============================================
+### PHẦN 9: XÓA USER
+### ============================================
+
+### 9.1. ✅ ADMIN xóa user (Should SUCCESS)
+DELETE {{baseUrl}}/api/v1/auth/users/5
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ============================================
+### PHẦN 10: TEST BẢO MẬT
+### ============================================
+
+### 10.1. ❌ Không có token (Should FAIL - 401)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+
+# Response mong đợi:
+# {
+#   "status": "error",
+#   "message": "Token is missing or invalid"
+# }
+
+###
+
+### 10.2. ❌ Token không hợp lệ (Should FAIL - 401)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer invalid_token_12345
+
+###
+
+### 10.3. ❌ Đăng nhập sai password (Should FAIL)
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "wrongpassword"
+}
+
+# Response mong đợi:
+# {
+#   "status": "error",
+#   "message": "Invalid credentials"
+# }
+
+###
+
+### ============================================
+### PHẦN 11: REFRESH TOKEN
+### ============================================
+
+### 11.1. Refresh access token
+POST {{baseUrl}}/api/v1/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "PASTE_REFRESH_TOKEN_HERE"
+}
+
+###
+
+### ============================================
+### PHẦN 12: LOGOUT
+### ============================================
+
+### 12.1. Logout
+POST {{baseUrl}}/api/v1/auth/logout
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ============================================
+### PHẦN 13: GET CURRENT USER INFO
+### ============================================
+
+### 13.1. Lấy thông tin user hiện tại
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{adminToken}}
+
+# Response mong đợi:
+# {
+#   "status": "success",
+#   "data": {
+#     "userId": 1,
+#     "username": "admin",
+#     "email": "admin@company.com",
+#     "roles": ["SUPER_ADMIN"],
+#     "permissions": [...],
+#     "functions": [...]
+#   }
+# }
+
+###
+
+### ============================================
+### TÓM TẮT KẾT QUẢ MONG ĐỢI
+### ============================================
+
+# ĐĂNG KÝ:
+# ✅ Đăng ký user mới → 201 Created
+
+# ĐĂNG NHẬP:
+# ✅ Login với credentials đúng → 200 OK + token
+# ❌ Login với password sai → 401 Unauthorized
+
+# TẠO USER + PHÂN QUYỀN:
+# ✅ ADMIN tạo user → 201 Created
+# ❌ HR_MANAGER tạo user → 403 Forbidden
+# ❌ EMPLOYEE tạo user → 403 Forbidden
+
+# XEM USERS:
+# ✅ ADMIN xem users → 200 OK
+# ❌ HR_MANAGER xem users → 403 Forbidden
+# ❌ EMPLOYEE xem users → 403 Forbidden
+
+# XEM ACCESS LOGS:
+# ✅ ADMIN xem logs → 200 OK
+# ❌ Tất cả roles khác → 403 Forbidden
+
+# PHÂN QUYỀN KHÁC:
+# ✅ HR_MANAGER xem employees → 200 OK
+# ❌ EMPLOYEE xem employees → 403 Forbidden
+# ✅ PAYROLL_ACCOUNTANT xem salaries → 200 OK
+# ❌ HR_MANAGER xem salaries → 403 Forbidden
+
+# BẢO MẬT:
+# ❌ Không có token → 401 Unauthorized
+# ❌ Token không hợp lệ → 401 Unauthorized
+
+### ============================================
+### SAMPLE USERS
+### ============================================
+
+# Username: admin
+# Password: admin123
+# Role: SUPER_ADMIN
+# Quyền: Toàn quyền, tạo user + phân quyền
+
+# Username: hr_manager
+# Password: admin123
+# Role: HR_MANAGER
+# Quyền: Quản lý employees, departments
+
+# Username: accountant
+# Password: admin123
+# Role: PAYROLL_ACCOUNTANT
+# Quyền: Quản lý salaries
+
+# Username: employee
+# Password: admin123
+# Role: EMPLOYEE
+# Quyền: Xem thông tin của mình
+
+### ============================================
+### END OF FILE
+### ============================================

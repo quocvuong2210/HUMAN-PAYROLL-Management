@@ -18,10 +18,22 @@ class UserModel:
 
     def register(self, username, password, email, phone=None, dob=None, gender=None):
         """Đăng ký user mới với mật khẩu được hash"""
-        hashed_password = generate_password_hash(password)
+        # Hash password với method='pbkdf2:sha256'
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        
+        # Kiểm tra username và email đã tồn tại chưa
+        check_sql = """
+            SELECT COUNT(*) as Count FROM [USER] 
+            WHERE Username = :username OR Email = :email
+        """
+        check_result = self._execute(check_sql, {"username": username, "email": email}, fetch=True)
+        
+        if check_result[0]['Count'] > 0:
+            return False, "Username hoặc Email đã tồn tại"
+        
         sql = """
-            INSERT INTO [USER] (Username, [Password], Email, PhoneNumber, DateOfBirth, Gender)
-            VALUES (:username, :password, :email, :phone, :dob, :gender)
+            INSERT INTO [USER] (Username, [Password], Email, PhoneNumber, DateOfBirth, Gender, [Status])
+            VALUES (:username, :password, :email, :phone, :dob, :gender, 'ACTIVE')
         """
         try:
             self._execute(sql, {
@@ -179,8 +191,8 @@ class UserModel:
         if not check_password_hash(current_hashed_password, old_password):
             return False, "Mật khẩu cũ không chính xác"
         
-        # 3. Hash mật khẩu mới và update
-        new_hashed_password = generate_password_hash(new_password)
+        # 3. Hash mật khẩu mới và update với method='pbkdf2:sha256'
+        new_hashed_password = generate_password_hash(new_password, method='pbkdf2:sha256')
         sql_update = "UPDATE [USER] SET [Password] = :new_password WHERE UserID = :user_id"
         
         try:

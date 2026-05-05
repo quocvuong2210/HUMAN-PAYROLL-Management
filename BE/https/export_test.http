@@ -1,0 +1,106 @@
+### ========================================
+### EXPORT API TESTING
+### ========================================
+
+### 1. Login to get token
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### Save the access_token from response above and use it below
+
+### ========================================
+### EMPLOYEE EXPORT
+### ========================================
+
+### 2. Export Employees to Excel (All)
+GET http://localhost:5000/api/v1/export/employees/excel
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 3. Export Employees to Excel (With Filters)
+GET http://localhost:5000/api/v1/export/employees/excel?status=Đang làm việc&dept_id=1
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 4. Export Employees to PDF (All)
+GET http://localhost:5000/api/v1/export/employees/pdf
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 5. Export Employees to PDF (With Filters)
+GET http://localhost:5000/api/v1/export/employees/pdf?name=Nguyễn
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### ========================================
+### REPORT EXPORT
+### ========================================
+
+### 6. Export Salary Report to Excel
+POST http://localhost:5000/api/v1/export/report/excel
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "report_type": "salary",
+  "headers": ["Họ tên", "Lương cơ bản", "Thưởng", "Khấu trừ", "Thực nhận"],
+  "data": [
+    ["Nguyễn Văn A", 15000000, 2000000, 500000, 16500000],
+    ["Trần Thị B", 12000000, 1500000, 300000, 13200000],
+    ["Lê Văn C", 18000000, 3000000, 800000, 20200000]
+  ]
+}
+
+### 7. Export Attendance Report to Excel
+POST http://localhost:5000/api/v1/export/report/excel
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "report_type": "attendance",
+  "headers": ["Họ tên", "Ngày công", "Ngày nghỉ", "Ngày phép"],
+  "data": [
+    ["Nguyễn Văn A", 22, 1, 0],
+    ["Trần Thị B", 20, 2, 1],
+    ["Lê Văn C", 23, 0, 0]
+  ]
+}
+
+### 8. Export Salary Report to PDF
+POST http://localhost:5000/api/v1/export/report/pdf
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "report_type": "salary",
+  "headers": ["Họ tên", "Lương cơ bản", "Thưởng", "Khấu trừ", "Thực nhận"],
+  "data": [
+    ["Nguyễn Văn A", 15000000, 2000000, 500000, 16500000],
+    ["Trần Thị B", 12000000, 1500000, 300000, 13200000],
+    ["Lê Văn C", 18000000, 3000000, 800000, 20200000]
+  ]
+}
+
+### 9. Export Attendance Report to PDF
+POST http://localhost:5000/api/v1/export/report/pdf
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "report_type": "attendance",
+  "headers": ["Họ tên", "Ngày công", "Ngày nghỉ", "Ngày phép"],
+  "data": [
+    ["Nguyễn Văn A", 22, 1, 0],
+    ["Trần Thị B", 20, 2, 1],
+    ["Lê Văn C", 23, 0, 0]
+  ]
+}
+
+### ========================================
+### NOTES
+### ========================================
+# 1. Replace YOUR_TOKEN_HERE with actual token from login response
+# 2. Files will be downloaded automatically
+# 3. Check Downloads folder for exported files
+# 4. Filename format: Danh_sach_nhan_vien_YYYYMMDD_HHMMSS.xlsx

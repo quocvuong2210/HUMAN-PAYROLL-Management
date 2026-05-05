@@ -19,8 +19,37 @@ export default function LoginPage() {
             });
             const data = await response.json();
             if (data.status === 'success') {
+                // Lưu access token
                 localStorage.setItem('accessToken', data.token);
-                window.location.href = '/'; 
+                localStorage.setItem('access_token', data.token);
+
+                // Lưu user info nếu có
+                if (data.user) {
+                    // Lưu roles
+                    if (data.user.roles) {
+                        localStorage.setItem('user_roles', JSON.stringify(data.user.roles));
+                    }
+
+                    // Lưu permissions
+                    if (data.user.permissions) {
+                        localStorage.setItem('user_permissions', JSON.stringify(data.user.permissions));
+                    }
+
+                    // Lưu functions
+                    if (data.user.functions) {
+                        localStorage.setItem('user_functions', JSON.stringify(data.user.functions));
+                    }
+
+                    // Lưu user info
+                    localStorage.setItem('user_info', JSON.stringify({
+                        userId: data.user.userId,
+                        username: data.user.username,
+                        email: data.user.email
+                    }));
+                }
+
+                // Redirect to home
+                window.location.href = '/';
             } else {
                 setError(data.message || 'Sai tài khoản hoặc mật khẩu');
             }
@@ -32,41 +61,48 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-950 p-6 font-sans">
-            {/* Background Decorative Elements */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-                <div className="absolute -top-[20%] -left-[10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[0%] right-[0%] w-[400px] h-[400px] bg-indigo-600/20 rounded-full blur-[100px]" />
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 font-sans relative overflow-hidden">
+            {/* Animated Background */}
+            <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-[40%] -left-[20%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[150px] animate-pulse" />
+                <div className="absolute -bottom-[30%] -right-[20%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+                <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] bg-purple-600/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
             </div>
 
             {/* Login Card */}
-            <div className="w-full max-w-[420px] relative z-10">
-                <div className="bg-slate-900/50 backdrop-blur-2xl border border-slate-800 p-8 rounded-[2rem] shadow-2xl">
-                    
+            <div className="w-full max-w-md relative z-10">
+                <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800/50 p-10 rounded-3xl shadow-2xl shadow-black/50">
+
                     {/* Brand Header */}
-                    <div className="flex flex-col items-center mb-10">
-                        <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/20 mb-4">
-                            <ShieldCheck size={32} className="text-white" />
+                    <div className="flex flex-col items-center mb-8">
+                        <div className="relative mb-5">
+                            <div className="absolute inset-0 bg-blue-600/20 rounded-2xl blur-xl"></div>
+                            <div className="relative w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/30">
+                                <ShieldCheck size={40} className="text-white" />
+                            </div>
                         </div>
-                        <h2 className="text-2xl font-black text-white tracking-tight uppercase">HR System</h2>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Quản trị truy cập</p>
+                        <h2 className="text-3xl font-black text-white tracking-tight uppercase bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                            HR System
+                        </h2>
+                        <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mt-2">Quản trị truy cập</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-5">
                         {error && (
-                            <div className="flex items-center gap-2 bg-rose-500/10 text-rose-400 p-3 rounded-xl border border-rose-500/20 text-[11px] font-bold uppercase">
-                                <AlertCircle size={16} /> {error}
+                            <div className="flex items-center gap-2.5 bg-rose-500/10 text-rose-400 p-4 rounded-xl border border-rose-500/20 text-xs font-bold animate-in slide-in-from-top-2">
+                                <AlertCircle size={18} className="flex-shrink-0" />
+                                <span>{error}</span>
                             </div>
                         )}
 
                         {/* Username Input */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-500 uppercase ml-1">Username</label>
+                        <div className="space-y-2">
+                            <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider ml-1">Username</label>
                             <div className="relative group">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-all duration-300" size={20} />
                                 <input
                                     type="text"
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3.5 pl-12 pr-4 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                                    className="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl py-4 pl-12 pr-4 text-white text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-300 placeholder:text-slate-600"
                                     placeholder="Nhập tên đăng nhập..."
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
@@ -76,13 +112,13 @@ export default function LoginPage() {
                         </div>
 
                         {/* Password Input */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-500 uppercase ml-1">Password</label>
+                        <div className="space-y-2">
+                            <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider ml-1">Password</label>
                             <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={18} />
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-all duration-300" size={20} />
                                 <input
                                     type="password"
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3.5 pl-12 pr-4 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                                    className="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl py-4 pl-12 pr-4 text-white text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-300 placeholder:text-slate-600"
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -95,18 +131,32 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-black py-3.5 rounded-xl transition-all active:scale-[0.98] mt-4"
+                            className="w-full flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-4 rounded-xl transition-all duration-300 active:scale-[0.98] shadow-lg shadow-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
                         >
-                            {loading ? <Loader2 className="animate-spin" size={20} /> : (
+                            {loading ? (
                                 <>
-                                    Đăng nhập <ArrowRight size={18} />
+                                    <Loader2 className="animate-spin" size={20} />
+                                    <span>Đang xử lý...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span>Đăng nhập</span>
+                                    <ArrowRight size={20} />
                                 </>
                             )}
                         </button>
                     </form>
-                </div>
 
-            
+                    {/* Footer */}
+                    <div className="mt-8 text-center">
+                        <p className="text-xs text-slate-500">
+                            Hệ thống quản lý nhân sự
+                        </p>
+                        <p className="text-[10px] text-slate-600 mt-1">
+                            © 2024 HR System. All rights reserved.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     );

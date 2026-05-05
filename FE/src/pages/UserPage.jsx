@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useOutletContext } from 'react-router-dom'
-import { 
-  Users, UserPlus, Search, Edit2, Trash2, X, 
-  Loader2, ChevronRight, CheckCircle2, Clock, Globe, 
+import {
+  Users, UserPlus, Search, Edit2, Trash2, X,
+  Loader2, ChevronRight, CheckCircle2, Clock, Globe,
   Monitor, AlertCircle, RefreshCw, Calendar, Mail, Phone, User,
   Shield, ChevronLeft, ChevronsLeft, ChevronsRight
 } from 'lucide-react'
+import UserCreateModalWithRoles from '../components/UserCreateModalWithRoles'
+import { useToast } from '../contexts/ToastContext'
+import { formatDateForInput } from '../utils/dateHelpers'
 
 const API_BASE = import.meta.env.VITE_API_URL
 
@@ -49,7 +52,8 @@ const translations = {
     failedLogins: 'Đăng Nhập Thất Bại',
     results: 'kết quả',
     createUser: 'Tạo Người Dùng',
-    updateUser: 'Cập Nhật Người Dùng'
+    updateUser: 'Cập Nhật Người Dùng',
+    roles: 'Vai Trò'
   },
   en: {
     title: 'User Management',
@@ -90,14 +94,27 @@ const translations = {
     failedLogins: 'Failed Logins',
     results: 'results',
     createUser: 'Create User',
-    updateUser: 'Update User'
+    updateUser: 'Update User',
+    roles: 'Roles'
   }
+}
+
+// Helper function for role badge colors
+const getRoleBadgeColor = (role) => {
+  const colors = {
+    'SUPER_ADMIN': 'bg-red-500/10 text-red-500 border-red-500/20',
+    'HR_MANAGER': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    'PAYROLL_ACCOUNTANT': 'bg-green-500/10 text-green-500 border-green-500/20',
+    'EMPLOYEE': 'bg-slate-500/10 text-slate-500 border-slate-500/20'
+  }
+  return colors[role] || 'bg-slate-500/10 text-slate-500 border-slate-500/20'
 }
 
 export default function UserPage() {
   const { isDarkMode, language } = useOutletContext() || { isDarkMode: false, language: 'vi' }
   const lang = language || 'vi'
   const t = translations[lang]
+  const { showToast } = useToast()
 
   const [users, setUsers] = useState([])
   const [accessLogs, setAccessLogs] = useState([])
@@ -108,7 +125,7 @@ export default function UserPage() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [activeTab, setActiveTab] = useState('users')
   const [searchTerm, setSearchTerm] = useState('')
-  
+
   const [editForm, setEditForm] = useState({
     username: '',
     email: '',
@@ -117,7 +134,7 @@ export default function UserPage() {
     gender: '',
     status: ''
   })
-  
+
   const [newUserForm, setNewUserForm] = useState({
     username: '',
     email: '',
@@ -130,7 +147,12 @@ export default function UserPage() {
   const fetchUsers = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/admin/users`)
+      const token = localStorage.getItem('access_token')
+      const res = await fetch(`${API_BASE}/api/v1/admin/users-with-roles`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       const data = await res.json()
       setUsers(data.data || [])
     } catch (err) {
@@ -143,7 +165,12 @@ export default function UserPage() {
   const fetchAccessLogs = useCallback(async () => {
     setLogsLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/admin/logs`)
+      const token = localStorage.getItem('access_token')
+      const res = await fetch(`${API_BASE}/api/v1/admin/access-logs`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       const data = await res.json()
       setAccessLogs(data.data || [])
     } catch (err) {
@@ -164,21 +191,29 @@ export default function UserPage() {
       await fetch(`${API_BASE}/api/v1/auth/users/${id}`, { method: 'DELETE' })
       fetchUsers()
       setSelectedUser(null)
+      showToast('Xóa người dùng thành công!', 'success')
     } catch (err) {
-      alert('Error deleting user')
+      showToast('Error deleting user', 'error')
     }
   }
 
   const handleEdit = (user) => {
-    setEditForm({
+    console.log('📝 Opening edit form for user:', user);
+    console.log('📅 DateOfBirth from API:', user.DateOfBirth);
+
+    const formattedData = {
       username: user.Username || '',
       email: user.Email || '',
       phone: user.PhoneNumber || '',
-      dob: user.DateOfBirth?.split('T')[0] || '',
+      dob: formatDateForInput(user.DateOfBirth),
       gender: user.Gender || '',
       status: user.Status || ''
-    })
-    setShowEditModal(true)
+    };
+
+    console.log('✅ Formatted dob:', formattedData.dob);
+
+    setEditForm(formattedData);
+    setShowEditModal(true);
   }
 
   const handleUpdateUser = async () => {
@@ -193,7 +228,7 @@ export default function UserPage() {
         gender: editForm.gender || null,
         status: editForm.status || null
       }
-      
+
       const res = await fetch(`${API_BASE}/api/v1/auth/users/${selectedUser.UserID}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -204,11 +239,12 @@ export default function UserPage() {
         fetchUsers()
         setShowEditModal(false)
         setSelectedUser(null)
+        showToast('Cập nhật người dùng thành công!', 'success')
       } else {
-        alert(data.message)
+        showToast(data.message, 'error')
       }
     } catch (err) {
-      alert('Error updating user')
+      showToast('Error updating user', 'error')
     }
   }
 
@@ -223,7 +259,7 @@ export default function UserPage() {
         dob: newUserForm.dob && newUserForm.dob.trim() !== '' ? newUserForm.dob : null,
         gender: newUserForm.gender || null
       }
-      
+
       const res = await fetch(`${API_BASE}/api/v1/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -241,15 +277,16 @@ export default function UserPage() {
           dob: '',
           gender: 'Nam'
         })
+        showToast('Tạo người dùng thành công!', 'success')
       } else {
-        alert(data.message)
+        showToast(data.message, 'error')
       }
     } catch (err) {
-      alert('Error creating user')
+      showToast('Error creating user', 'error')
     }
   }
 
-  const filteredUsers = users.filter(user => 
+  const filteredUsers = users.filter(user =>
     user.Username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.Email?.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -294,30 +331,29 @@ export default function UserPage() {
 
   return (
     <div className={`p-6 flex flex-col gap-6 ${isDarkMode ? 'text-slate-300' : 'text-slate-800'}`}>
-      
+
       {/* Header Tabs */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-700 pb-4">
         <div className="flex gap-6">
           {tabs.map((tab) => {
             const Icon = tab.icon
             return (
-              <button 
+              <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)} 
-                className={`pb-2 flex items-center gap-2 border-b-2 transition-all duration-200 ${
-                  activeTab === tab.id 
-                    ? 'border-blue-500 text-blue-500 font-semibold' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                onClick={() => setActiveTab(tab.id)}
+                className={`pb-2 flex items-center gap-2 border-b-2 transition-all duration-200 ${activeTab === tab.id
+                  ? 'border-blue-500 text-blue-500 font-semibold'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 <Icon size={18} /> {tab.label}
               </button>
             )
           })}
         </div>
-        
+
         <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={() => { fetchUsers(); fetchAccessLogs(); }}
             disabled={loading || logsLoading}
             className="text-xs px-3 py-1.5 bg-blue-600/10 text-blue-600 rounded-lg flex items-center gap-2 hover:bg-blue-600/20 disabled:opacity-50"
@@ -325,8 +361,8 @@ export default function UserPage() {
             <RefreshCw size={14} className={(loading || logsLoading) ? 'animate-spin' : ''} />
             {t.refresh}
           </button>
-          <button 
-            onClick={() => setShowModal(true)} 
+          <button
+            onClick={() => setShowModal(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg font-semibold text-sm flex items-center gap-2 shadow-lg shadow-blue-600/20 transition-all"
           >
             <UserPlus size={16} /> {t.addUser}
@@ -335,16 +371,15 @@ export default function UserPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className={`grid grid-cols-2 md:grid-cols-6 gap-3 p-4 rounded-xl border ${
-        isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-      }`}>
+      <div className={`grid grid-cols-2 md:grid-cols-6 gap-3 p-4 rounded-xl border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+        }`}>
         <div className="col-span-2 flex items-center gap-2">
           <Search className="text-slate-400" size={18} />
-          <input 
+          <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-transparent w-full focus:outline-none text-sm" 
+            className="bg-transparent w-full focus:outline-none text-sm"
             placeholder={t.searchPlaceholder}
           />
         </div>
@@ -353,9 +388,8 @@ export default function UserPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Total Users */}
-        <div className={`p-4 rounded-xl flex items-center justify-between border ${
-          isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-        }`}>
+        <div className={`p-4 rounded-xl flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+          }`}>
           <div>
             <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wide">{t.totalUsers}</p>
             <h3 className={`text-lg font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
@@ -368,9 +402,8 @@ export default function UserPage() {
         </div>
 
         {/* Active Users */}
-        <div className={`p-4 rounded-xl flex items-center justify-between border ${
-          isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-        }`}>
+        <div className={`p-4 rounded-xl flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+          }`}>
           <div>
             <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wide">{t.activeUsers}</p>
             <h3 className={`text-lg font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
@@ -383,9 +416,8 @@ export default function UserPage() {
         </div>
 
         {/* Today Logins */}
-        <div className={`p-4 rounded-xl flex items-center justify-between border ${
-          isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-        }`}>
+        <div className={`p-4 rounded-xl flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+          }`}>
           <div>
             <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wide">{t.todayLogins}</p>
             <h3 className={`text-lg font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
@@ -398,9 +430,8 @@ export default function UserPage() {
         </div>
 
         {/* Failed Logins */}
-        <div className={`p-4 rounded-xl flex items-center justify-between border ${
-          isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-        }`}>
+        <div className={`p-4 rounded-xl flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+          }`}>
           <div>
             <p className="text-[10px] font-bold text-rose-500 uppercase tracking-wide">{t.failedLogins}</p>
             <h3 className={`text-lg font-black mt-1 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
@@ -416,10 +447,9 @@ export default function UserPage() {
       {/* Main Content */}
       <div className="flex gap-6">
         {/* Table Section */}
-        <div className={`flex-1 border overflow-hidden rounded-xl ${
-          isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'
-        }`}>
-          
+        <div className={`flex-1 border overflow-hidden rounded-xl ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'
+          }`}>
+
           {/* Users Tab */}
           {activeTab === 'users' && (
             <div className="overflow-x-auto">
@@ -428,6 +458,7 @@ export default function UserPage() {
                   <tr>
                     <th className="p-4 text-left text-xs font-bold uppercase tracking-wider">{t.username}</th>
                     <th className="p-4 text-left text-xs font-bold uppercase tracking-wider">{t.email}</th>
+                    <th className="p-4 text-left text-xs font-bold uppercase tracking-wider">{t.roles}</th>
                     <th className="p-4 text-left text-xs font-bold uppercase tracking-wider">{t.phone}</th>
                     <th className="p-4 text-left text-xs font-bold uppercase tracking-wider">{t.gender}</th>
                     <th className="p-4 text-left text-xs font-bold uppercase tracking-wider">{t.status}</th>
@@ -438,42 +469,52 @@ export default function UserPage() {
                 <tbody className={`divide-y ${isDarkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
                   {loading ? (
                     <tr>
-                      <td colSpan="7" className="text-center p-10">
+                      <td colSpan="8" className="text-center p-10">
                         <Loader2 className="animate-spin text-blue-500 mx-auto" size={24} />
                         <p className="mt-2 text-sm opacity-60">{t.loading}</p>
                       </td>
                     </tr>
                   ) : filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="text-center p-10 text-slate-400">{t.noData}</td>
+                      <td colSpan="8" className="text-center p-10 text-slate-400">{t.noData}</td>
                     </tr>
                   ) : filteredUsers.map(user => (
-                    <tr 
-                      key={user.UserID} 
+                    <tr
+                      key={user.UserID}
                       onClick={() => setSelectedUser(user)}
-                      className={`cursor-pointer transition-colors hover:bg-slate-500/5 ${
-                        selectedUser?.UserID === user.UserID ? (isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50') : ''
-                      }`}
+                      className={`cursor-pointer transition-colors hover:bg-slate-500/5 ${selectedUser?.UserID === user.UserID ? (isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50') : ''
+                        }`}
                     >
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm ${
-                            isDarkMode ? 'bg-blue-900 text-blue-400' : 'bg-blue-100 text-blue-600'
-                          }`}>
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm ${isDarkMode ? 'bg-blue-900 text-blue-400' : 'bg-blue-100 text-blue-600'
+                            }`}>
                             {user.Username?.[0]?.toUpperCase() || 'U'}
                           </div>
                           <span className="font-semibold">{user.Username}</span>
                         </div>
                       </td>
                       <td className="p-4 text-slate-500">{user.Email}</td>
+                      <td className="p-4">
+                        <div className="flex flex-wrap gap-1">
+                          {user.Roles && user.Roles.length > 0 ? (
+                            user.Roles.map((role, idx) => (
+                              <span key={idx} className={`px-2 py-0.5 text-xs rounded-lg border font-semibold ${getRoleBadgeColor(role)}`}>
+                                {role}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-slate-400 text-xs">No roles</span>
+                          )}
+                        </div>
+                      </td>
                       <td className="p-4 text-slate-500">{user.PhoneNumber || 'N/A'}</td>
                       <td className="p-4">{user.Gender || 'N/A'}</td>
                       <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                          user.Status === 'ACTIVE' 
-                            ? 'bg-emerald-100 text-emerald-600' 
-                            : 'bg-rose-100 text-rose-600'
-                        }`}>
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${user.Status === 'ACTIVE'
+                          ? 'bg-emerald-100 text-emerald-600'
+                          : 'bg-rose-100 text-rose-600'
+                          }`}>
                           {user.Status === 'ACTIVE' ? t.active : t.inactive}
                         </span>
                       </td>
@@ -515,15 +556,14 @@ export default function UserPage() {
                       <td colSpan="6" className="text-center p-10 text-slate-400">{t.noData}</td>
                     </tr>
                   ) : filteredLogs.map((log, idx) => (
-                    <tr 
+                    <tr
                       key={log.LogID || idx}
                       className="transition-colors hover:bg-slate-500/5"
                     >
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${
-                            isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-600'
-                          }`}>
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-600'
+                            }`}>
                             {log.Username?.[0]?.toUpperCase() || 'U'}
                           </div>
                           <span className="font-medium">{log.Username}</span>
@@ -531,11 +571,10 @@ export default function UserPage() {
                       </td>
                       <td className="p-4 text-slate-500">{log.Email}</td>
                       <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 w-fit ${
-                          log.Action === 'LOGIN_SUCCESS' 
-                            ? 'bg-emerald-100 text-emerald-600' 
-                            : 'bg-rose-100 text-rose-600'
-                        }`}>
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 w-fit ${log.Action === 'LOGIN_SUCCESS'
+                          ? 'bg-emerald-100 text-emerald-600'
+                          : 'bg-rose-100 text-rose-600'
+                          }`}>
                           {log.Action === 'LOGIN_SUCCESS' ? (
                             <><CheckCircle2 size={12} /> {t.loginSuccess}</>
                           ) : (
@@ -571,36 +610,33 @@ export default function UserPage() {
 
         {/* Sidebar Detail - Only show when user is selected */}
         {selectedUser && activeTab === 'users' && (
-          <div className={`w-[350px] rounded-xl border p-6 flex flex-col gap-5 ${
-            isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-          }`}>
+          <div className={`w-[350px] rounded-xl border p-6 flex flex-col gap-5 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+            }`}>
             <div className="flex justify-between items-center">
               <h3 className="font-bold text-sm uppercase tracking-wider text-slate-500">{t.userDetails}</h3>
-              <button 
-                onClick={() => setSelectedUser(null)} 
+              <button
+                onClick={() => setSelectedUser(null)}
                 className={`p-2 rounded-full ${isDarkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
               >
                 <X size={16} />
               </button>
             </div>
-            
+
             <div className="space-y-4">
               <div className="text-center space-y-2">
-                <div className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-xl font-bold ${
-                  isDarkMode ? 'bg-blue-900 text-blue-400' : 'bg-blue-600 text-white'
-                }`}>
+                <div className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-xl font-bold ${isDarkMode ? 'bg-blue-900 text-blue-400' : 'bg-blue-600 text-white'
+                  }`}>
                   {selectedUser.Username?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{selectedUser.Username}</h2>
-                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold inline-block ${
-                  selectedUser.Status === 'ACTIVE' 
-                    ? 'bg-emerald-100 text-emerald-600' 
-                    : 'bg-rose-100 text-rose-600'
-                }`}>
+                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold inline-block ${selectedUser.Status === 'ACTIVE'
+                  ? 'bg-emerald-100 text-emerald-600'
+                  : 'bg-rose-100 text-rose-600'
+                  }`}>
                   {selectedUser.Status === 'ACTIVE' ? t.active : t.inactive}
                 </span>
               </div>
-              
+
               <div className={`space-y-3 pt-4 border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                 <InfoRow icon={Mail} label={t.email} value={selectedUser.Email} />
                 <InfoRow icon={Phone} label={t.phone} value={selectedUser.PhoneNumber || 'N/A'} />
@@ -611,16 +647,15 @@ export default function UserPage() {
             </div>
 
             <div className="mt-auto flex gap-3">
-              <button 
+              <button
                 onClick={() => handleEdit(selectedUser)}
-                className={`flex-1 py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 ${
-                  isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'
-                }`}
+                className={`flex-1 py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 ${isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'
+                  }`}
               >
                 <Edit2 size={14} /> {t.edit}
               </button>
-              <button 
-                onClick={() => handleDelete(selectedUser.UserID)} 
+              <button
+                onClick={() => handleDelete(selectedUser.UserID)}
                 className="flex-1 py-2.5 rounded-xl bg-rose-50 text-rose-600 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-rose-100"
               >
                 <Trash2 size={14} /> {t.delete}
@@ -640,71 +675,65 @@ export default function UserPage() {
                 <X size={18} />
               </button>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.username}</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={newUserForm.username}
-                  onChange={(e) => setNewUserForm({...newUserForm, username: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, username: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.email}</label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   value={newUserForm.email}
-                  onChange={(e) => setNewUserForm({...newUserForm, email: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.password}</label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   value={newUserForm.password}
-                  onChange={(e) => setNewUserForm({...newUserForm, password: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.phone}</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={newUserForm.phone}
-                  onChange={(e) => setNewUserForm({...newUserForm, phone: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, phone: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.dob}</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={newUserForm.dob}
-                  onChange={(e) => setNewUserForm({...newUserForm, dob: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, dob: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.gender}</label>
-                <select 
+                <select
                   value={newUserForm.gender}
-                  onChange={(e) => setNewUserForm({...newUserForm, gender: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, gender: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 >
                   <option value="Nam">{t.male}</option>
                   <option value="Nữ">{t.female}</option>
@@ -713,15 +742,14 @@ export default function UserPage() {
             </div>
 
             <div className="flex gap-3 mt-6">
-              <button 
+              <button
                 onClick={() => setShowModal(false)}
-                className={`flex-1 py-2.5 rounded-xl font-semibold text-sm ${
-                  isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'
-                }`}
+                className={`flex-1 py-2.5 rounded-xl font-semibold text-sm ${isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'
+                  }`}
               >
                 {t.cancel}
               </button>
-              <button 
+              <button
                 onClick={handleCreateUser}
                 className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm"
               >
@@ -742,60 +770,55 @@ export default function UserPage() {
                 <X size={18} />
               </button>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.username}</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={editForm.username}
-                  onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.email}</label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   value={editForm.email}
-                  onChange={(e) => setEditForm({...editForm, email: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.phone}</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={editForm.phone}
-                  onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.dob}</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={editForm.dob}
-                  onChange={(e) => setEditForm({...editForm, dob: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setEditForm({ ...editForm, dob: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.gender}</label>
-                <select 
+                <select
                   value={editForm.gender}
-                  onChange={(e) => setEditForm({...editForm, gender: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 >
                   <option value="Nam">{t.male}</option>
                   <option value="Nữ">{t.female}</option>
@@ -803,12 +826,11 @@ export default function UserPage() {
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.status}</label>
-                <select 
+                <select
                   value={editForm.status}
-                  onChange={(e) => setEditForm({...editForm, status: e.target.value})}
-                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${
-                    isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border text-sm ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                    }`}
                 >
                   <option value="ACTIVE">{t.active}</option>
                   <option value="INACTIVE">{t.inactive}</option>
@@ -817,15 +839,14 @@ export default function UserPage() {
             </div>
 
             <div className="flex gap-3 mt-6">
-              <button 
+              <button
                 onClick={() => setShowEditModal(false)}
-                className={`flex-1 py-2.5 rounded-xl font-semibold text-sm ${
-                  isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'
-                }`}
+                className={`flex-1 py-2.5 rounded-xl font-semibold text-sm ${isDarkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'
+                  }`}
               >
                 {t.cancel}
               </button>
-              <button 
+              <button
                 onClick={handleUpdateUser}
                 className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm"
               >

@@ -1,0 +1,103 @@
+### ============================================
+### PROFILE & ACCESS LOGS API TESTS
+### ============================================
+
+@baseUrl = http://localhost:5000/api/v1/auth
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZW1haWwiOiJhZG1pbkBjb21wYW55LmNvbSIsInJvbGVzIjpbIlNVUEVSX0FETUlOIl0sInBlcm1pc3Npb25zIjpbIkhSX01BTkFHRU1FTlQiLCJUSU1FS0VFUElORyIsIlBBWVJPTExfTUFOQUdFTUVOVCIsIlNZU1RFTV9BRE1JTiJdLCJmdW5jdGlvbnMiOlsiQVRURU5EQU5DRV9DSEVDS0lOIiwiQVRURU5EQU5DRV9FRElUIiwiQVRURU5EQU5DRV9FWFBPUlQiLCJBVFRFTkRBTkNFX1ZJRVciLCJERVBUX01BTkFHRSIsIlBBU1NXT1JEX0NIQU5HRSIsIlBBWVNMSVBfR0VORVJBVEUiLCJQT1NJVElPTl9NQU5BR0UiLCJQUk9GSUxFX0VESVQiLCJQUk9GSUxFX1ZJRVciLCJSRVBPUlRfSFJfVklFVyIsIlJFUE9SVF9QQVlST0xMX1ZJRVciLCJSRVBPUlRfUEVSU09OQUxfVklFVyIsIlNBTEFSWV9DQUxDVUxBVEUiLCJTQUxBUllfVklFVyIsIlVTRVJfQ1JFQVRFIiwiVVNFUl9ERUxFVEUiLCJVU0VSX1VQREFURSIsIlVTRVJfVklFVyJdLCJleHAiOjE3NDYzNzU0MzQsImlhdCI6MTc0NjM3MTgzNH0.abc123
+
+### ============================================
+### 1. LOGIN - Get fresh token
+### ============================================
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### ============================================
+### 2. GET PROFILE - /me
+### ============================================
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### ============================================
+### 3. UPDATE PROFILE
+### ============================================
+PUT {{baseUrl}}/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "admin@company.com",
+  "phone": "0901234567",
+  "dob": "1990-01-15",
+  "gender": "Nam"
+}
+
+### ============================================
+### 4. CHANGE PASSWORD
+### ============================================
+POST {{baseUrl}}/change-password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "oldPassword": "admin123",
+  "newPassword": "admin123"
+}
+
+### ============================================
+### 5. GET MY ACCESS LOGS
+### ============================================
+GET {{baseUrl}}/my-access-logs?limit=10
+Authorization: Bearer {{token}}
+
+### ============================================
+### 6. GET MY ACCESS LOGS (50 records)
+### ============================================
+GET {{baseUrl}}/my-access-logs?limit=50
+Authorization: Bearer {{token}}
+
+### ============================================
+### TEST WITH HR_MANAGER
+### ============================================
+
+### Login as HR Manager
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "hr_manager",
+  "password": "admin123"
+}
+
+### Get HR Manager Profile
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Get HR Manager Access Logs
+GET {{baseUrl}}/my-access-logs?limit=10
+Authorization: Bearer {{token}}
+
+### ============================================
+### TEST WITH EMPLOYEE
+### ============================================
+
+### Login as Employee
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "employee",
+  "password": "admin123"
+}
+
+### Get Employee Profile
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Get Employee Access Logs
+GET {{baseUrl}}/my-access-logs?limit=10
+Authorization: Bearer {{token}}

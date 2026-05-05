@@ -1,0 +1,385 @@
+### ============================================
+### HR PAYROLL SYSTEM - RBAC & AUTH API TESTS
+### ============================================
+
+### Variables
+@baseUrl = http://localhost:5000
+@contentType = application/json
+
+### ============================================
+### 1. AUTHENTICATION - ĐĂNG NHẬP & ĐĂNG KÝ
+### ============================================
+
+### 1.1. Đăng ký user mới (Register)
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "newuser",
+  "email": "newuser@company.com",
+  "password": "password123",
+  "phone": "0123456789",
+  "dob": "1990-01-01",
+  "gender": "Nam"
+}
+
+### 1.2. Đăng nhập - SUPER_ADMIN
+# @name loginAdmin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 1.3. Đăng nhập - HR_MANAGER
+# @name loginHR
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "hr_manager",
+  "password": "admin123"
+}
+
+### 1.4. Đăng nhập - PAYROLL_ACCOUNTANT
+# @name loginAccountant
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "accountant",
+  "password": "admin123"
+}
+
+### 1.5. Đăng nhập - EMPLOYEE
+# @name loginEmployee
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "employee",
+  "password": "admin123"
+}
+
+### 1.6. Đăng nhập thất bại - Sai password
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "wrongpassword"
+}
+
+### 1.7. Đăng nhập thất bại - User không tồn tại
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "nonexistentuser",
+  "password": "password123"
+}
+
+### ============================================
+### 2. USER MANAGEMENT - QUẢN LÝ NGƯỜI DÙNG
+### ============================================
+
+### 2.1. Lấy tất cả users với roles (SUPER_ADMIN, HR_MANAGER)
+# Yêu cầu: Bearer token từ SUPER_ADMIN hoặc HR_MANAGER
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQGNvbXBhbnkuY29tIiwicm9sZXMiOlsiU1VQRVJfQURNSU4iXSwicGVybWlzc2lvbnMiOlsiSFJfTUFOQUdFTUVOVCIsIlRJTUVLRUVQSU5HIiwiUEFZUk9MTF9NQU5BR0VNRU5UIiwiUkVQT1JUSU5HIl0sImZ1bmN0aW9ucyI6WyJVU0VSX1ZJRVciLCJVU0VSX0NSRUFURSIsIlVTRVJfRURJVCIsIkRFUFRfTUFOQUdFIiwiUE9TSVRJT05fTUFOQUdFIiwiQVRURU5EQU5DRV9WSUVXIiwiQVRURU5EQU5DRV9FRElUIiwiQVRURU5EQU5DRV9FWFBPUlQiLCJTQUxBUllfVklFV19BTEwiLCJTQUxBUllfQ0FMQ1VMQVRFIiwiU0FMQVJZX0xPQ0siLCJQQVlTTElQX0dFTkVSQVRFIiwiUkVQT1JUX0hSX1ZJRVciLCJSRVBPUlRfUEFZUk9MTF9WSUVXIl0sImV4cCI6MTc0NjM4NjQwMH0.xxx
+
+### 2.2. Tạo user mới với roles (SUPER_ADMIN, HR_MANAGER)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+{
+  "username": "sang12343",
+  "email": "sang123@company.com",
+  "password": "test123",
+  "phone": "0987654321",
+  "dob": "1995-05-15",
+  "gender": "Nữ",
+  "roleIds": [2, 4]
+}
+
+### 2.3. Cập nhật user (SUPER_ADMIN, HR_MANAGER)
+PUT {{baseUrl}}/api/v1/auth/users/5
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+{
+  "username": "testuser_updated",
+  "email": "testuser_updated@company.com",
+  "phone": "0999999999",
+  "status": "ACTIVE"
+}
+
+### 2.4. Xóa user (SUPER_ADMIN only)
+DELETE {{baseUrl}}/api/v1/auth/users/5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### ============================================
+### 3. ACCESS LOGS - LỊCH SỬ TRUY CẬP
+### ============================================
+
+### 3.1. Lấy tất cả access logs (SUPER_ADMIN, HR_MANAGER)
+GET {{baseUrl}}/api/v1/admin/access-logs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### 3.2. Lấy access logs (OLD endpoint - deprecated)
+GET {{baseUrl}}/api/v1/auth/admin/logs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### ============================================
+### 4. RBAC MANAGEMENT - QUẢN LÝ PHÂN QUYỀN
+### ============================================
+
+### 4.1. Lấy tất cả roles
+GET {{baseUrl}}/api/v1/rbac/roles
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### 4.2. Tạo role mới (SUPER_ADMIN only)
+POST {{baseUrl}}/api/v1/rbac/roles
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+{
+  "roleName": "MANAGER"
+}
+
+### 4.3. Lấy tất cả permissions
+GET {{baseUrl}}/api/v1/rbac/permissions
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### 4.4. Tạo permission mới (SUPER_ADMIN only)
+POST {{baseUrl}}/api/v1/rbac/permissions
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+{
+  "permissionName": "SYSTEM_ADMIN"
+}
+
+### 4.5. Lấy tất cả system functions
+GET {{baseUrl}}/api/v1/rbac/functions
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### 4.6. Gán role cho user (SUPER_ADMIN only)
+POST {{baseUrl}}/api/v1/rbac/assign-role
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+{
+  "userId": 5,
+  "roleId": 2
+}
+
+### 4.7. Gán permission cho role (SUPER_ADMIN only)
+POST {{baseUrl}}/api/v1/rbac/assign-permission
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+{
+  "roleId": 5,
+  "permissionId": 1
+}
+
+### 4.8. Lấy roles của user
+GET {{baseUrl}}/api/v1/rbac/user/1/roles
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### 4.9. Lấy permissions của user
+GET {{baseUrl}}/api/v1/rbac/user/1/permissions
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### ============================================
+### 5. TEST AUTHORIZATION - KIỂM TRA PHÂN QUYỀN
+### ============================================
+
+### 5.1. Test: EMPLOYEE cố truy cập users-with-roles (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer <EMPLOYEE_TOKEN_HERE>
+
+### 5.2. Test: EMPLOYEE cố truy cập access-logs (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/access-logs
+Authorization: Bearer <EMPLOYEE_TOKEN_HERE>
+
+### 5.3. Test: HR_MANAGER truy cập users-with-roles (Should SUCCESS)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer <HR_MANAGER_TOKEN_HERE>
+
+### 5.4. Test: Không có token (Should FAIL - 401)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+
+### 5.5. Test: Token không hợp lệ (Should FAIL - 401)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer invalid_token_here
+
+### ============================================
+### 6. EMAIL VERIFICATION & OTP
+### ============================================
+
+### 6.1. Request OTP cho đăng ký
+POST {{baseUrl}}/api/v1/auth/register/request-otp
+Content-Type: {{contentType}}
+
+{
+  "email": "newuser@company.com"
+}
+
+### 6.2. Verify OTP
+POST {{baseUrl}}/api/v1/auth/register/verify-otp
+Content-Type: {{contentType}}
+
+{
+  "email": "newuser@company.com",
+  "otp": "123456"
+}
+
+### 6.3. Resend OTP
+POST {{baseUrl}}/api/v1/auth/register/resend-otp
+Content-Type: {{contentType}}
+
+{
+  "email": "newuser@company.com"
+}
+
+### 6.4. Verify email (từ link trong email)
+GET {{baseUrl}}/api/v1/auth/verify-email?token=verification_token_here
+
+### ============================================
+### 7. PASSWORD MANAGEMENT
+### ============================================
+
+### 7.1. Request password reset
+POST {{baseUrl}}/api/v1/auth/password/reset-request
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@company.com"
+}
+
+### 7.2. Reset password với token
+POST {{baseUrl}}/api/v1/auth/password/reset
+Content-Type: {{contentType}}
+
+{
+  "token": "reset_token_here",
+  "newPassword": "newpassword123"
+}
+
+### 7.3. Change password (khi đã đăng nhập)
+POST {{baseUrl}}/api/v1/auth/password/change
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+{
+  "oldPassword": "admin123",
+  "newPassword": "newadmin123"
+}
+
+### ============================================
+### 8. TOKEN MANAGEMENT
+### ============================================
+
+### 8.1. Refresh access token
+POST {{baseUrl}}/api/v1/auth/refresh-token
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "refresh_token_here"
+}
+
+### 8.2. Logout (invalidate token)
+POST {{baseUrl}}/api/v1/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### 8.3. Get current user info
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### ============================================
+### 9. DEPARTMENT MANAGEMENT (Protected)
+### ============================================
+
+### 9.1. Lấy tất cả departments (SUPER_ADMIN, HR_MANAGER)
+GET {{baseUrl}}/api/v1/departments
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### 9.2. Tạo department mới (SUPER_ADMIN, HR_MANAGER)
+POST {{baseUrl}}/api/v1/departments
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+{
+  "departmentName": "IT Department",
+  "description": "Information Technology"
+}
+
+### ============================================
+### 10. EMPLOYEE MANAGEMENT (Protected)
+### ============================================
+
+### 10.1. Lấy tất cả employees (All authenticated users)
+GET {{baseUrl}}/api/v1/employees
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+### 10.2. Tạo employee mới (SUPER_ADMIN, HR_MANAGER)
+POST {{baseUrl}}/api/v1/employees
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxx
+
+{
+  "fullName": "Nguyen Van A",
+  "email": "nguyenvana@company.com",
+  "phone": "0123456789",
+  "departmentId": 1,
+  "positionId": 1
+}
+
+### ============================================
+### NOTES - HƯỚNG DẪN SỬ DỤNG
+### ============================================
+
+# 1. Đăng nhập trước để lấy token:
+#    - Chạy request "1.2. Đăng nhập - SUPER_ADMIN"
+#    - Copy token từ response
+#    - Paste vào Authorization header của các request khác
+
+# 2. Test phân quyền:
+#    - Đăng nhập với các user khác nhau (admin, hr_manager, employee)
+#    - Thử truy cập các endpoint khác nhau
+#    - Kiểm tra response: 200 (OK), 401 (Unauthorized), 403 (Forbidden)
+
+# 3. Sample Users:
+#    - admin / admin123 → SUPER_ADMIN (full access)
+#    - hr_manager / admin123 → HR_MANAGER (HR + Timekeeping + Reporting)
+#    - accountant / admin123 → PAYROLL_ACCOUNTANT (Payroll + Reporting)
+#    - employee / admin123 → EMPLOYEE (Self-service only)
+
+# 4. Expected Responses:
+#    - 200: Success
+#    - 201: Created
+#    - 400: Bad Request (validation error)
+#    - 401: Unauthorized (no token or invalid token)
+#    - 403: Forbidden (no permission)
+#    - 404: Not Found
+#    - 500: Internal Server Error
+
+# 5. JWT Token Format:
+#    Authorization: Bearer <token>
+#    Token expires after 1 hour (configurable)
+
+# 6. Role Permissions:
+#    SUPER_ADMIN: All permissions
+#    HR_MANAGER: HR_MANAGEMENT, TIMEKEEPING, REPORTING
+#    PAYROLL_ACCOUNTANT: PAYROLL_MANAGEMENT, REPORTING
+#    EMPLOYEE: SELF_SERVICE
+
+### ============================================
+### END OF FILE
+### ============================================

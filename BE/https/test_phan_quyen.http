@@ -1,0 +1,414 @@
+### ============================================
+### TEST PHÂN QUYỀN - HR PAYROLL SYSTEM
+### ============================================
+### 
+### PHÂN QUYỀN RÕ RÀNG:
+### 
+### SUPER_ADMIN (admin):
+###   ✅ Tất cả trang
+###   ✅ Tạo user + phân quyền
+###   ✅ Xem access logs
+### 
+### HR_MANAGER (hr_manager):
+###   ✅ Employees, Departments, Reports
+###   ❌ Users (KHÔNG tạo user)
+###   ❌ Access Logs
+###   ❌ Salaries
+### 
+### PAYROLL_ACCOUNTANT (accountant):
+###   ✅ Salaries, Reports
+###   ❌ Users, Access Logs, Employees, Departments
+### 
+### EMPLOYEE (employee):
+###   ✅ Dashboard, Profile (chỉ của mình)
+###   ❌ Tất cả trang quản lý
+### 
+### ============================================
+
+@baseUrl = http://localhost:5000
+
+### ============================================
+### BƯỚC 1: ĐĂNG NHẬP
+### ============================================
+
+### 1.1. Login as SUPER_ADMIN
+# @name adminLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+###
+
+### 1.2. Login as HR_MANAGER
+# @name hrLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "hr_manager",
+  "password": "admin123"
+}
+
+###
+
+### 1.3. Login as PAYROLL_ACCOUNTANT
+# @name accountantLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "accountant",
+  "password": "admin123"
+}
+
+###
+
+### 1.4. Login as EMPLOYEE
+# @name employeeLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "employee",
+  "password": "admin123"
+}
+
+###
+
+### ============================================
+### BƯỚC 2: PASTE TOKEN VÀO ĐÂY
+### ============================================
+
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@hrToken = PASTE_HR_TOKEN_HERE
+@accountantToken = PASTE_ACCOUNTANT_TOKEN_HERE
+@employeeToken = PASTE_EMPLOYEE_TOKEN_HERE
+
+### ============================================
+### TEST 1: USER MANAGEMENT (Tạo User + Phân Quyền)
+### ============================================
+
+### ✅ 1.1. SUPER_ADMIN - Get users with roles (Should SUCCESS)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ✅ 1.2. SUPER_ADMIN - Create user with roles (Should SUCCESS)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "username": "testuser",
+  "email": "testuser@company.com",
+  "password": "test123",
+  "phone": "0987654321",
+  "roleIds": [2, 4]
+}
+
+###
+
+### ❌ 1.3. HR_MANAGER - Get users (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer {{hrToken}}
+
+###
+
+### ❌ 1.4. HR_MANAGER - Create user (Should FAIL - 403)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: application/json
+Authorization: Bearer {{hrToken}}
+
+{
+  "username": "testuser2",
+  "email": "testuser2@company.com",
+  "password": "test123",
+  "roleIds": [4]
+}
+
+###
+
+### ❌ 1.5. PAYROLL_ACCOUNTANT - Get users (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer {{accountantToken}}
+
+###
+
+### ❌ 1.6. EMPLOYEE - Get users (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### ============================================
+### TEST 2: ACCESS LOGS (Xem Lịch Sử Truy Cập)
+### ============================================
+
+### ✅ 2.1. SUPER_ADMIN - Get access logs (Should SUCCESS)
+GET {{baseUrl}}/api/v1/admin/access-logs
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ❌ 2.2. HR_MANAGER - Get access logs (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/access-logs
+Authorization: Bearer {{hrToken}}
+
+###
+
+### ❌ 2.3. PAYROLL_ACCOUNTANT - Get access logs (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/access-logs
+Authorization: Bearer {{accountantToken}}
+
+###
+
+### ❌ 2.4. EMPLOYEE - Get access logs (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/access-logs
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### ============================================
+### TEST 3: EMPLOYEE MANAGEMENT (Quản Lý Nhân Viên)
+### ============================================
+
+### ✅ 3.1. SUPER_ADMIN - Get employees (Should SUCCESS)
+GET {{baseUrl}}/api/v1/employees
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ✅ 3.2. HR_MANAGER - Get employees (Should SUCCESS)
+GET {{baseUrl}}/api/v1/employees
+Authorization: Bearer {{hrToken}}
+
+###
+
+### ❌ 3.3. PAYROLL_ACCOUNTANT - Get employees (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/employees
+Authorization: Bearer {{accountantToken}}
+
+###
+
+### ❌ 3.4. EMPLOYEE - Get employees (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/employees
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### ============================================
+### TEST 4: DEPARTMENT MANAGEMENT (Quản Lý Phòng Ban)
+### ============================================
+
+### ✅ 4.1. SUPER_ADMIN - Get departments (Should SUCCESS)
+GET {{baseUrl}}/api/v1/departments
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ✅ 4.2. HR_MANAGER - Get departments (Should SUCCESS)
+GET {{baseUrl}}/api/v1/departments
+Authorization: Bearer {{hrToken}}
+
+###
+
+### ❌ 4.3. PAYROLL_ACCOUNTANT - Get departments (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/departments
+Authorization: Bearer {{accountantToken}}
+
+###
+
+### ❌ 4.4. EMPLOYEE - Get departments (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/departments
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### ============================================
+### TEST 5: SALARY MANAGEMENT (Quản Lý Lương)
+### ============================================
+
+### ✅ 5.1. SUPER_ADMIN - Get salaries (Should SUCCESS)
+GET {{baseUrl}}/api/v1/salaries
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ✅ 5.2. PAYROLL_ACCOUNTANT - Get salaries (Should SUCCESS)
+GET {{baseUrl}}/api/v1/salaries
+Authorization: Bearer {{accountantToken}}
+
+###
+
+### ❌ 5.3. HR_MANAGER - Get salaries (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/salaries
+Authorization: Bearer {{hrToken}}
+
+###
+
+### ❌ 5.4. EMPLOYEE - Get salaries (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/salaries
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### ============================================
+### TEST 6: REPORTS (Báo Cáo)
+### ============================================
+
+### ✅ 6.1. SUPER_ADMIN - Get reports (Should SUCCESS)
+GET {{baseUrl}}/api/v1/reports
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ✅ 6.2. HR_MANAGER - Get reports (Should SUCCESS)
+GET {{baseUrl}}/api/v1/reports
+Authorization: Bearer {{hrToken}}
+
+###
+
+### ✅ 6.3. PAYROLL_ACCOUNTANT - Get reports (Should SUCCESS)
+GET {{baseUrl}}/api/v1/reports
+Authorization: Bearer {{accountantToken}}
+
+###
+
+### ❌ 6.4. EMPLOYEE - Get reports (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/reports
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### ============================================
+### TEST 7: PROFILE (Hồ Sơ Cá Nhân)
+### ============================================
+
+### ✅ 7.1. SUPER_ADMIN - Get profile (Should SUCCESS)
+GET {{baseUrl}}/api/v1/profile
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ✅ 7.2. HR_MANAGER - Get profile (Should SUCCESS)
+GET {{baseUrl}}/api/v1/profile
+Authorization: Bearer {{hrToken}}
+
+###
+
+### ✅ 7.3. PAYROLL_ACCOUNTANT - Get profile (Should SUCCESS)
+GET {{baseUrl}}/api/v1/profile
+Authorization: Bearer {{accountantToken}}
+
+###
+
+### ✅ 7.4. EMPLOYEE - Get profile (Should SUCCESS)
+GET {{baseUrl}}/api/v1/profile
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### ============================================
+### TEST 8: NO TOKEN (Không Có Token)
+### ============================================
+
+### ❌ 8.1. Get users without token (Should FAIL - 401)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+
+###
+
+### ❌ 8.2. Get employees without token (Should FAIL - 401)
+GET {{baseUrl}}/api/v1/employees
+
+###
+
+### ============================================
+### TEST 9: INVALID TOKEN (Token Không Hợp Lệ)
+### ============================================
+
+### ❌ 9.1. Get users with invalid token (Should FAIL - 401)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer invalid_token_12345
+
+###
+
+### ============================================
+### EXPECTED RESULTS - KẾT QUẢ MONG ĐỢI
+### ============================================
+
+# TEST 1: USER MANAGEMENT
+# 1.1. SUPER_ADMIN → 200 OK (có data users với roles)
+# 1.2. SUPER_ADMIN → 201 Created (user created)
+# 1.3. HR_MANAGER → 403 Forbidden (không được tạo user)
+# 1.4. HR_MANAGER → 403 Forbidden (không được tạo user)
+# 1.5. PAYROLL_ACCOUNTANT → 403 Forbidden
+# 1.6. EMPLOYEE → 403 Forbidden
+
+# TEST 2: ACCESS LOGS
+# 2.1. SUPER_ADMIN → 200 OK (có data logs)
+# 2.2. HR_MANAGER → 403 Forbidden
+# 2.3. PAYROLL_ACCOUNTANT → 403 Forbidden
+# 2.4. EMPLOYEE → 403 Forbidden
+
+# TEST 3: EMPLOYEE MANAGEMENT
+# 3.1. SUPER_ADMIN → 200 OK
+# 3.2. HR_MANAGER → 200 OK
+# 3.3. PAYROLL_ACCOUNTANT → 403 Forbidden
+# 3.4. EMPLOYEE → 403 Forbidden
+
+# TEST 4: DEPARTMENT MANAGEMENT
+# 4.1. SUPER_ADMIN → 200 OK
+# 4.2. HR_MANAGER → 200 OK
+# 4.3. PAYROLL_ACCOUNTANT → 403 Forbidden
+# 4.4. EMPLOYEE → 403 Forbidden
+
+# TEST 5: SALARY MANAGEMENT
+# 5.1. SUPER_ADMIN → 200 OK
+# 5.2. PAYROLL_ACCOUNTANT → 200 OK
+# 5.3. HR_MANAGER → 403 Forbidden
+# 5.4. EMPLOYEE → 403 Forbidden
+
+# TEST 6: REPORTS
+# 6.1. SUPER_ADMIN → 200 OK
+# 6.2. HR_MANAGER → 200 OK
+# 6.3. PAYROLL_ACCOUNTANT → 200 OK
+# 6.4. EMPLOYEE → 403 Forbidden
+
+# TEST 7: PROFILE
+# 7.1-7.4. All → 200 OK (tất cả đều xem được profile của mình)
+
+# TEST 8: NO TOKEN
+# 8.1-8.2. All → 401 Unauthorized
+
+# TEST 9: INVALID TOKEN
+# 9.1. → 401 Unauthorized
+
+### ============================================
+### SUMMARY - TÓM TẮT
+### ============================================
+
+# ✅ SUPER_ADMIN:
+#    - Tất cả endpoints → 200 OK
+#    - Tạo user + phân quyền → 201 Created
+#    - Xem access logs → 200 OK
+
+# ✅ HR_MANAGER:
+#    - Employees, Departments, Reports, Profile → 200 OK
+#    - Users, Access Logs, Salaries → 403 Forbidden
+
+# ✅ PAYROLL_ACCOUNTANT:
+#    - Salaries, Reports, Profile → 200 OK
+#    - Users, Access Logs, Employees, Departments → 403 Forbidden
+
+# ✅ EMPLOYEE:
+#    - Profile → 200 OK
+#    - Tất cả trang quản lý → 403 Forbidden
+
+### ============================================
+### END OF FILE
+### ============================================

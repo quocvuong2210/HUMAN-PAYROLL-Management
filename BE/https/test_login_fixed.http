@@ -1,0 +1,282 @@
+### ============================================
+### TEST ĐĂNG NHẬP - ĐÃ SỬA LỖI
+### ============================================
+### 
+### ✅ TẤT CẢ PASSWORDS ĐÃ ĐƯỢC RESET
+### ✅ Tất cả users có password: admin123
+### ✅ Hash method: pbkdf2:sha256
+### 
+### ============================================
+
+@baseUrl = http://localhost:5000
+
+### ============================================
+### TEST 1: ĐĂNG NHẬP SAMPLE USERS
+### ============================================
+
+### 1.1. Login as SUPER_ADMIN
+# @name loginAdmin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+# Expected: 200 OK + token + roles: ["SUPER_ADMIN"]
+
+###
+
+### 1.2. Login as HR_MANAGER
+# @name loginHR
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "hr_manager",
+  "password": "admin123"
+}
+
+# Expected: 200 OK + token + roles: ["HR_MANAGER"]
+
+###
+
+### 1.3. Login as PAYROLL_ACCOUNTANT
+# @name loginAccountant
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "accountant",
+  "password": "admin123"
+}
+
+# Expected: 200 OK + token + roles: ["PAYROLL_ACCOUNTANT"]
+
+###
+
+### 1.4. Login as EMPLOYEE
+# @name loginEmployee
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "employee",
+  "password": "admin123"
+}
+
+# Expected: 200 OK + token + roles: ["EMPLOYEE"]
+
+###
+
+### ============================================
+### TEST 2: ĐĂNG NHẬP OTHER USERS
+### ============================================
+
+### 2.1. Login as testuser_updated
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser_updated",
+  "password": "admin123"
+}
+
+# Expected: 200 OK + token
+
+###
+
+### 2.2. Login as newuser
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "password": "admin123"
+}
+
+# Expected: 200 OK + token
+
+###
+
+### 2.3. Login as sang
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "sang",
+  "password": "admin123"
+}
+
+# Expected: 200 OK + token
+
+###
+
+### 2.4. Login as testuser
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "admin123"
+}
+
+# Expected: 200 OK + token
+
+###
+
+### ============================================
+### TEST 3: PASTE TOKEN VÀO ĐÂY
+### ============================================
+
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@hrToken = PASTE_HR_TOKEN_HERE
+
+### ============================================
+### TEST 4: GET CURRENT USER INFO
+### ============================================
+
+### 4.1. Get admin info
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{adminToken}}
+
+# Expected: 200 OK + user data with roles
+
+###
+
+### 4.2. Get HR manager info
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{hrToken}}
+
+# Expected: 200 OK + user data with roles
+
+###
+
+### ============================================
+### TEST 5: TEST SAI PASSWORD
+### ============================================
+
+### 5.1. Login với password sai
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "wrongpassword"
+}
+
+# Expected: 401 Unauthorized
+
+###
+
+### ============================================
+### TEST 6: TEST USER KHÔNG TỒN TẠI
+### ============================================
+
+### 6.1. Login với username không tồn tại
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "nonexistent",
+  "password": "admin123"
+}
+
+# Expected: 401 Unauthorized
+
+###
+
+### ============================================
+### TEST 7: ĐĂNG KÝ USER MỚI
+### ============================================
+
+### 7.1. Register new user
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "newuser2",
+  "email": "newuser2@company.com",
+  "password": "password123",
+  "phone": "0987654321",
+  "dob": "1995-05-15",
+  "gender": "Nam"
+}
+
+# Expected: 201 Created
+
+###
+
+### 7.2. Login với user vừa tạo
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "newuser2",
+  "password": "password123"
+}
+
+# Expected: 200 OK + token
+
+###
+
+### ============================================
+### TEST 8: CREATE USER WITH ROLES (SUPER_ADMIN ONLY)
+### ============================================
+
+### 8.1. ✅ ADMIN tạo user với roles (Should SUCCESS)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "username": "newhr2",
+  "email": "newhr2@company.com",
+  "password": "hr123",
+  "phone": "0912345678",
+  "roleIds": [2]
+}
+
+# Expected: 201 Created
+
+###
+
+### 8.2. ❌ HR_MANAGER tạo user (Should FAIL - 403)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: application/json
+Authorization: Bearer {{hrToken}}
+
+{
+  "username": "failuser",
+  "email": "fail@company.com",
+  "password": "fail123",
+  "roleIds": [4]
+}
+
+# Expected: 403 Forbidden
+
+###
+
+### ============================================
+### SUMMARY - TÓM TẮT
+### ============================================
+
+# ✅ TẤT CẢ 8 USERS ĐÃ ĐƯỢC RESET:
+#
+# 1. admin / admin123 → SUPER_ADMIN
+# 2. hr_manager / admin123 → HR_MANAGER
+# 3. accountant / admin123 → PAYROLL_ACCOUNTANT
+# 4. employee / admin123 → EMPLOYEE
+# 5. testuser_updated / admin123
+# 6. newuser / admin123
+# 7. sang / admin123
+# 8. testuser / admin123
+#
+# ✅ Hash method: pbkdf2:sha256
+# ✅ Status: ACTIVE
+# ✅ Lỗi "Invalid hash method ''" đã được sửa!
+
+### ============================================
+### END OF FILE
+### ============================================

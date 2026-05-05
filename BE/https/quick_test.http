@@ -1,0 +1,151 @@
+### ============================================
+### QUICK TEST - RBAC & AUTH
+### ============================================
+
+@baseUrl = http://localhost:5000
+
+### ============================================
+### STEP 1: ĐĂNG NHẬP
+### ============================================
+
+### 1. Login as SUPER_ADMIN
+# @name adminLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+###
+
+### 2. Login as HR_MANAGER
+# @name hrLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "hr_manager",
+  "password": "admin123"
+}
+
+###
+
+### 3. Login as EMPLOYEE
+# @name employeeLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "employee",
+  "password": "admin123"
+}
+
+###
+
+### ============================================
+### STEP 2: COPY TOKEN VÀ PASTE VÀO ĐÂY
+### ============================================
+
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@hrToken = PASTE_HR_TOKEN_HERE
+@employeeToken = PASTE_EMPLOYEE_TOKEN_HERE
+
+### ============================================
+### STEP 3: TEST PHÂN QUYỀN
+### ============================================
+
+### 4. ✅ ADMIN - Get users with roles (Should SUCCESS)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 5. ✅ HR_MANAGER - Get users with roles (Should SUCCESS)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer {{hrToken}}
+
+###
+
+### 6. ❌ EMPLOYEE - Get users with roles (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### 7. ✅ ADMIN - Get access logs (Should SUCCESS)
+GET {{baseUrl}}/api/v1/admin/access-logs
+Authorization: Bearer {{adminToken}}
+
+###
+
+### 8. ❌ EMPLOYEE - Get access logs (Should FAIL - 403)
+GET {{baseUrl}}/api/v1/admin/access-logs
+Authorization: Bearer {{employeeToken}}
+
+###
+
+### ============================================
+### STEP 4: TẠO USER MỚI VỚI ROLES
+### ============================================
+
+### 9. ✅ ADMIN - Create user with roles (Should SUCCESS)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "username": "testuser",
+  "email": "testuser@company.com",
+  "password": "test123",
+  "phone": "0987654321",
+  "roleIds": [2, 4]
+}
+
+###
+
+### 10. ❌ EMPLOYEE - Create user (Should FAIL - 403)
+POST {{baseUrl}}/api/v1/auth/users
+Content-Type: application/json
+Authorization: Bearer {{employeeToken}}
+
+{
+  "username": "testuser2",
+  "email": "testuser2@company.com",
+  "password": "test123",
+  "roleIds": [4]
+}
+
+###
+
+### ============================================
+### STEP 5: KIỂM TRA RESPONSE
+### ============================================
+
+# Expected Results:
+# 
+# Request 4 (ADMIN): 200 OK - Returns users with Roles array
+# Request 5 (HR_MANAGER): 200 OK - Returns users with Roles array
+# Request 6 (EMPLOYEE): 403 Forbidden - Access denied
+# Request 7 (ADMIN): 200 OK - Returns logs with UserRoles array
+# Request 8 (EMPLOYEE): 403 Forbidden - Access denied
+# Request 9 (ADMIN): 201 Created - User created successfully
+# Request 10 (EMPLOYEE): 403 Forbidden - Access denied
+
+###
+
+### ============================================
+### BONUS: TEST WITHOUT TOKEN
+### ============================================
+
+### 11. ❌ No token (Should FAIL - 401)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+
+###
+
+### 12. ❌ Invalid token (Should FAIL - 401)
+GET {{baseUrl}}/api/v1/admin/users-with-roles
+Authorization: Bearer invalid_token_12345
+
+###

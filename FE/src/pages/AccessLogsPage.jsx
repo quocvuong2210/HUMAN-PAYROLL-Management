@@ -109,10 +109,13 @@ export default function AccessLogsPage() {
     const t = translations[lang]
 
     const [logs, setLogs] = useState([])
+    const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(false)
+    const [usersLoading, setUsersLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [actionFilter, setActionFilter] = useState('all')
     const [showCreateModal, setShowCreateModal] = useState(false)
+    const [activeTab, setActiveTab] = useState('logs')
 
     const fetchLogs = async () => {
         setLoading(true)
@@ -132,8 +135,27 @@ export default function AccessLogsPage() {
         }
     }
 
+    const fetchUsers = async () => {
+        setUsersLoading(true)
+        try {
+            const token = localStorage.getItem('access_token')
+            const res = await fetch(`${API_BASE}/api/v1/admin/users-with-roles`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            const data = await res.json()
+            setUsers(data.data || [])
+        } catch (err) {
+            console.error('Error fetching users:', err)
+        } finally {
+            setUsersLoading(false)
+        }
+    }
+
     useEffect(() => {
         fetchLogs()
+        fetchUsers()
     }, [])
 
     const filteredLogs = logs.filter(log => {
@@ -147,6 +169,11 @@ export default function AccessLogsPage() {
 
         return matchesSearch && matchesAction
     })
+
+    const filteredUsers = users.filter(user =>
+        user.Username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.Email?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
 
     const formatDateTime = (dateStr) => {
         if (!dateStr) return 'N/A'
@@ -188,34 +215,46 @@ export default function AccessLogsPage() {
     ).length
     const failedActions = logs.filter(log => log.Action?.includes('FAILED')).length
 
+    const totalUsers = users.length
+    const activeUsers = users.filter(u => u.Status === 'ACTIVE').length
+
     const uniqueActions = [...new Set(logs.map(log => log.Action))].filter(Boolean)
+
+    const tabs = [
+        { id: 'logs', label: 'Nhật Ký Truy Cập', icon: Shield },
+        { id: 'users', label: 'Danh Sách Người Dùng', icon: Users }
+    ]
 
     return (
         <div className={`p-6 flex flex-col gap-6 ${isDarkMode ? 'text-slate-300' : 'text-slate-800'}`}>
 
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-500/10' : 'bg-blue-50'}`}>
-                        <Shield size={18} className="text-blue-500" />
-                    </div>
-                    <div>
-                        <h1 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                            {t.title}
-                        </h1>
-                        <p className="text-xs text-slate-400">
-                            Theo dõi tất cả hoạt động trong hệ thống
-                        </p>
-                    </div>
+            <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-700 pb-4">
+                <div className="flex gap-6">
+                    {tabs.map((tab) => {
+                        const Icon = tab.icon
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`pb-2 flex items-center gap-2 border-b-2 transition-all duration-200 ${activeTab === tab.id
+                                    ? 'border-blue-500 text-blue-500 font-semibold'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    }`}
+                            >
+                                <Icon size={18} /> {tab.label}
+                            </button>
+                        )
+                    })}
                 </div>
 
                 <div className="flex items-center gap-3">
                     <button
-                        onClick={fetchLogs}
-                        disabled={loading}
+                        onClick={() => { fetchLogs(); fetchUsers(); }}
+                        disabled={loading || usersLoading}
                         className="text-xs px-3 py-1.5 bg-blue-600/10 text-blue-600 rounded-lg flex items-center gap-2 hover:bg-blue-600/20 disabled:opacity-50"
                     >
-                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                        <RefreshCw size={14} className={(loading || usersLoading) ? 'animate-spin' : ''} />
                         {t.refresh}
                     </button>
                     <button
@@ -228,64 +267,120 @@ export default function AccessLogsPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-                    }`}>
-                    <div>
-                        <p className="text-[9px] font-bold text-blue-500 uppercase tracking-wide">{t.totalLogs}</p>
-                        <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                            {loading ? '...' : totalLogs}
-                        </h3>
+            {activeTab === 'logs' ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                        }`}>
+                        <div>
+                            <p className="text-[9px] font-bold text-blue-500 uppercase tracking-wide">{t.totalLogs}</p>
+                            <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                                {loading ? '...' : totalLogs}
+                            </h3>
+                        </div>
+                        <div className="bg-blue-500/10 p-2 rounded-lg">
+                            <Shield size={16} className="text-blue-500" />
+                        </div>
                     </div>
-                    <div className="bg-blue-500/10 p-2 rounded-lg">
-                        <Shield size={16} className="text-blue-500" />
-                    </div>
-                </div>
 
-                <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-                    }`}>
-                    <div>
-                        <p className="text-[9px] font-bold text-amber-500 uppercase tracking-wide">{t.todayLogs}</p>
-                        <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                            {loading ? '...' : todayLogs}
-                        </h3>
+                    <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                        }`}>
+                        <div>
+                            <p className="text-[9px] font-bold text-amber-500 uppercase tracking-wide">{t.todayLogs}</p>
+                            <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                                {loading ? '...' : todayLogs}
+                            </h3>
+                        </div>
+                        <div className="bg-amber-500/10 p-2 rounded-lg">
+                            <Calendar size={16} className="text-amber-500" />
+                        </div>
                     </div>
-                    <div className="bg-amber-500/10 p-2 rounded-lg">
-                        <Calendar size={16} className="text-amber-500" />
-                    </div>
-                </div>
 
-                <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-                    }`}>
-                    <div>
-                        <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-wide">{t.successActions}</p>
-                        <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                            {loading ? '...' : successActions}
-                        </h3>
+                    <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                        }`}>
+                        <div>
+                            <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-wide">{t.successActions}</p>
+                            <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                                {loading ? '...' : successActions}
+                            </h3>
+                        </div>
+                        <div className="bg-emerald-500/10 p-2 rounded-lg">
+                            <CheckCircle2 size={16} className="text-emerald-500" />
+                        </div>
                     </div>
-                    <div className="bg-emerald-500/10 p-2 rounded-lg">
-                        <CheckCircle2 size={16} className="text-emerald-500" />
-                    </div>
-                </div>
 
-                <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
-                    }`}>
-                    <div>
-                        <p className="text-[9px] font-bold text-rose-500 uppercase tracking-wide">{t.failedActions}</p>
-                        <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                            {loading ? '...' : failedActions}
-                        </h3>
-                    </div>
-                    <div className="bg-rose-500/10 p-2 rounded-lg">
-                        <XCircle size={16} className="text-rose-500" />
+                    <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                        }`}>
+                        <div>
+                            <p className="text-[9px] font-bold text-rose-500 uppercase tracking-wide">{t.failedActions}</p>
+                            <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                                {loading ? '...' : failedActions}
+                            </h3>
+                        </div>
+                        <div className="bg-rose-500/10 p-2 rounded-lg">
+                            <XCircle size={16} className="text-rose-500" />
+                        </div>
                     </div>
                 </div>
-            </div>
+            ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                        }`}>
+                        <div>
+                            <p className="text-[9px] font-bold text-blue-500 uppercase tracking-wide">Tổng Người Dùng</p>
+                            <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                                {usersLoading ? '...' : totalUsers}
+                            </h3>
+                        </div>
+                        <div className="bg-blue-500/10 p-2 rounded-lg">
+                            <Users size={16} className="text-blue-500" />
+                        </div>
+                    </div>
+
+                    <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                        }`}>
+                        <div>
+                            <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-wide">Đang Hoạt Động</p>
+                            <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                                {usersLoading ? '...' : activeUsers}
+                            </h3>
+                        </div>
+                        <div className="bg-emerald-500/10 p-2 rounded-lg">
+                            <CheckCircle2 size={16} className="text-emerald-500" />
+                        </div>
+                    </div>
+
+                    <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                        }`}>
+                        <div>
+                            <p className="text-[9px] font-bold text-amber-500 uppercase tracking-wide">Đăng Nhập Hôm Nay</p>
+                            <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                                {loading ? '...' : todayLogs}
+                            </h3>
+                        </div>
+                        <div className="bg-amber-500/10 p-2 rounded-lg">
+                            <Calendar size={16} className="text-amber-500" />
+                        </div>
+                    </div>
+
+                    <div className={`p-3 rounded-lg flex items-center justify-between border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+                        }`}>
+                        <div>
+                            <p className="text-[9px] font-bold text-rose-500 uppercase tracking-wide">Đăng Nhập Thất Bại</p>
+                            <h3 className={`text-base font-black mt-0.5 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                                {loading ? '...' : failedActions}
+                            </h3>
+                        </div>
+                        <div className="bg-rose-500/10 p-2 rounded-lg">
+                            <XCircle size={16} className="text-rose-500" />
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Filter Bar */}
             <div className={`p-3 rounded-lg border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
                 }`}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className={`grid ${activeTab === 'logs' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} gap-3`}>
                     {/* Search */}
                     <div className="flex items-center gap-2">
                         <Search className="text-slate-400" size={16} />
@@ -294,127 +389,207 @@ export default function AccessLogsPage() {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="bg-transparent w-full focus:outline-none text-xs"
-                            placeholder={t.searchPlaceholder}
+                            placeholder={activeTab === 'logs' ? t.searchPlaceholder : 'Tìm kiếm người dùng...'}
                         />
                     </div>
 
-                    {/* Action Filter */}
-                    <div className="flex items-center gap-2">
-                        <Filter className="text-slate-400" size={16} />
-                        <select
-                            value={actionFilter}
-                            onChange={(e) => setActionFilter(e.target.value)}
-                            className={`bg-transparent w-full focus:outline-none text-xs ${isDarkMode ? 'text-slate-300' : 'text-slate-800'
-                                }`}
-                        >
-                            <option value="all">{t.allActions}</option>
-                            {uniqueActions.map(action => (
-                                <option key={action} value={action}>{getActionLabel(action)}</option>
-                            ))}
-                        </select>
-                    </div>
+                    {/* Action Filter - Only show for logs tab */}
+                    {activeTab === 'logs' && (
+                        <div className="flex items-center gap-2">
+                            <Filter className="text-slate-400" size={16} />
+                            <select
+                                value={actionFilter}
+                                onChange={(e) => setActionFilter(e.target.value)}
+                                className={`bg-transparent w-full focus:outline-none text-xs ${isDarkMode ? 'text-slate-300' : 'text-slate-800'
+                                    }`}
+                            >
+                                <option value="all">{t.allActions}</option>
+                                {uniqueActions.map(action => (
+                                    <option key={action} value={action}>{getActionLabel(action)}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                 </div>
 
-                {filteredLogs.length > 0 && (
+                {((activeTab === 'logs' && filteredLogs.length > 0) || (activeTab === 'users' && filteredUsers.length > 0)) && (
                     <div className="mt-2 text-[10px] text-slate-400">
-                        Hiển thị {filteredLogs.length} {t.results}
+                        Hiển thị {activeTab === 'logs' ? filteredLogs.length : filteredUsers.length} {t.results}
                     </div>
                 )}
             </div>
 
             {/* Logs Table */}
-            <div className={`border overflow-hidden rounded-lg ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'
-                }`}>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
-                        <thead className={isDarkMode ? 'bg-slate-800' : 'bg-slate-100'}>
-                            <tr>
-                                <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.username}</th>
-                                <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.email}</th>
-                                <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">Vai Trò</th>
-                                <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.action}</th>
-                                <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.ipAddress}</th>
-                                <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.userAgent}</th>
-                                <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.time}</th>
-                            </tr>
-                        </thead>
-                        <tbody className={`divide-y ${isDarkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
-                            {loading ? (
+            {activeTab === 'logs' && (
+                <div className={`border overflow-hidden rounded-lg ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'
+                    }`}>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                            <thead className={isDarkMode ? 'bg-slate-800' : 'bg-slate-100'}>
                                 <tr>
-                                    <td colSpan="7" className="text-center p-10">
-                                        <Loader2 className="animate-spin text-blue-500 mx-auto" size={24} />
-                                        <p className="mt-2 text-sm opacity-60">{t.loading}</p>
-                                    </td>
+                                    <th className="p-6 text-left text-[10px] font-bold uppercase tracking-wider">{t.username}</th>
+                                    <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.email}</th>
+                                    <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">Vai Trò</th>
+                                    <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.action}</th>
+                                    <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.ipAddress}</th>
+                                    <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.userAgent}</th>
+                                    <th className="p-3 text-left text-[10px] font-bold uppercase tracking-wider">{t.time}</th>
                                 </tr>
-                            ) : filteredLogs.length === 0 ? (
-                                <tr>
-                                    <td colSpan="7" className="text-center p-10 text-slate-400">{t.noData}</td>
-                                </tr>
-                            ) : filteredLogs.map((log, idx) => {
-                                const ActionIcon = actionIcons[log.Action] || AlertCircle
-                                const actionColor = actionColors[log.Action] || 'bg-slate-500/10 text-slate-500 border-slate-500/20'
+                            </thead>
+                            <tbody className={`divide-y ${isDarkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan="7" className="text-center p-10">
+                                            <Loader2 className="animate-spin text-blue-500 mx-auto" size={24} />
+                                            <p className="mt-2 text-sm opacity-60">{t.loading}</p>
+                                        </td>
+                                    </tr>
+                                ) : filteredLogs.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="7" className="text-center p-10 text-slate-400">{t.noData}</td>
+                                    </tr>
+                                ) : filteredLogs.map((log, idx) => {
+                                    const ActionIcon = actionIcons[log.Action] || AlertCircle
+                                    const actionColor = actionColors[log.Action] || 'bg-slate-500/10 text-slate-500 border-slate-500/20'
 
-                                return (
+                                    return (
+                                        <tr
+                                            key={log.LogID || idx}
+                                            className="transition-colors hover:bg-slate-500/5"
+                                        >
+                                            <td className="p-2.5">
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold  ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-600'
+                                                        }`}>
+                                                        {log.Username?.[0]?.toUpperCase() || 'U'}
+                                                    </div>
+                                                    <span className="font-medium text-sm">{log.Username || 'N/A'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="p-6 text-slate-500 text-xs">{log.Email || 'N/A'}</td>
+                                            <td className="p-2.5">
+                                                <div className="flex flex-wrap gap-1">
+                                                    {log.UserRoles && log.UserRoles.length > 0 ? (
+                                                        log.UserRoles.map((role, roleIdx) => (
+                                                            <span key={roleIdx} className={`px-1.5 py-0.5 text-[9px] rounded border font-semibold ${getRoleBadgeColor(role)}`}>
+                                                                {role}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-slate-400 text-[10px]">-</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="p-2.5">
+                                                <span className={`px-2 py-1 rounded-lg text-[10px] font-semibold flex items-center gap-1.5 w-fit border ${actionColor}`}>
+                                                    <ActionIcon size={12} />
+                                                    {getActionLabel(log.Action)}
+                                                </span>
+                                            </td>
+                                            <td className="p-2.5">
+                                                <div className="flex items-center gap-1.5 text-slate-500 text-xs">
+                                                    <Globe size={12} />
+                                                    {log.IPAddress || 'N/A'}
+                                                </div>
+                                            </td>
+                                            <td className="p-2.5">
+                                                <div className="flex items-center gap-1.5 text-slate-500 max-w-[200px] truncate text-xs">
+                                                    <Monitor size={12} className="flex-shrink-0" />
+                                                    <span className="truncate" title={log.UserAgent}>
+                                                        {log.UserAgent || 'N/A'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="p-2.5">
+                                                <div className="flex items-center gap-1.5 text-slate-500 text-xs">
+                                                    <Clock size={12} />
+                                                    {formatDateTime(log.AccessTime)}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Users Table */}
+            {activeTab === 'users' && (
+                <div className={`border overflow-hidden rounded-lg ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'
+                    }`}>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                            <thead className={isDarkMode ? 'bg-slate-800' : 'bg-slate-100'}>
+                                <tr>
+                                    <th className="p-4 text-left text-[10px] font-bold uppercase tracking-wider">Tên Đăng Nhập</th>
+                                    <th className="p-4 text-left text-[10px] font-bold uppercase tracking-wider">Email</th>
+                                    <th className="p-4 text-left text-[10px] font-bold uppercase tracking-wider">Vai Trò</th>
+                                    <th className="p-4 text-left text-[10px] font-bold uppercase tracking-wider">Số Điện Thoại</th>
+                                    <th className="p-4 text-left text-[10px] font-bold uppercase tracking-wider">Giới Tính</th>
+                                    <th className="p-4 text-left text-[10px] font-bold uppercase tracking-wider">Trạng Thái</th>
+                                    <th className="p-4 text-left text-[10px] font-bold uppercase tracking-wider">Ngày Tạo</th>
+                                </tr>
+                            </thead>
+                            <tbody className={`divide-y ${isDarkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
+                                {usersLoading ? (
+                                    <tr>
+                                        <td colSpan="7" className="text-center p-10">
+                                            <Loader2 className="animate-spin text-blue-500 mx-auto" size={24} />
+                                            <p className="mt-2 text-sm opacity-60">{t.loading}</p>
+                                        </td>
+                                    </tr>
+                                ) : filteredUsers.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="7" className="text-center p-10 text-slate-400">{t.noData}</td>
+                                    </tr>
+                                ) : filteredUsers.map(user => (
                                     <tr
-                                        key={log.LogID || idx}
+                                        key={user.UserID}
                                         className="transition-colors hover:bg-slate-500/5"
                                     >
-                                        <td className="p-2.5">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-[10px] ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-600'
+                                        <td className="p-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${isDarkMode ? 'bg-blue-900 text-blue-400' : 'bg-blue-100 text-blue-600'
                                                     }`}>
-                                                    {log.Username?.[0]?.toUpperCase() || 'U'}
+                                                    {user.Username?.[0]?.toUpperCase() || 'U'}
                                                 </div>
-                                                <span className="font-medium text-xs">{log.Username || 'N/A'}</span>
+                                                <span className="font-semibold text-sm">{user.Username}</span>
                                             </div>
                                         </td>
-                                        <td className="p-2.5 text-slate-500 text-xs">{log.Email || 'N/A'}</td>
-                                        <td className="p-2.5">
+                                        <td className="p-4 text-slate-500">{user.Email}</td>
+                                        <td className="p-4">
                                             <div className="flex flex-wrap gap-1">
-                                                {log.UserRoles && log.UserRoles.length > 0 ? (
-                                                    log.UserRoles.map((role, roleIdx) => (
-                                                        <span key={roleIdx} className={`px-1.5 py-0.5 text-[9px] rounded border font-semibold ${getRoleBadgeColor(role)}`}>
+                                                {user.Roles && user.Roles.length > 0 ? (
+                                                    user.Roles.map((role, idx) => (
+                                                        <span key={idx} className={`px-2 py-0.5 text-[10px] rounded-lg border font-semibold ${getRoleBadgeColor(role)}`}>
                                                             {role}
                                                         </span>
                                                     ))
                                                 ) : (
-                                                    <span className="text-slate-400 text-[10px]">-</span>
+                                                    <span className="text-slate-400 text-[10px]">No roles</span>
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="p-2.5">
-                                            <span className={`px-2 py-1 rounded-lg text-[10px] font-semibold flex items-center gap-1.5 w-fit border ${actionColor}`}>
-                                                <ActionIcon size={12} />
-                                                {getActionLabel(log.Action)}
+                                        <td className="p-4 text-slate-500">{user.PhoneNumber || 'N/A'}</td>
+                                        <td className="p-4 text-slate-500">{user.Gender || 'N/A'}</td>
+                                        <td className="p-4">
+                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold ${user.Status === 'ACTIVE'
+                                                ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-500'
+                                                : 'bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:text-rose-500'
+                                                }`}>
+                                                {user.Status === 'ACTIVE' ? 'Hoạt Động' : 'Đã Khóa'}
                                             </span>
                                         </td>
-                                        <td className="p-2.5">
-                                            <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-                                                <Globe size={12} />
-                                                {log.IPAddress || 'N/A'}
-                                            </div>
-                                        </td>
-                                        <td className="p-2.5">
-                                            <div className="flex items-center gap-1.5 text-slate-500 max-w-[200px] truncate text-xs">
-                                                <Monitor size={12} className="flex-shrink-0" />
-                                                <span className="truncate" title={log.UserAgent}>
-                                                    {log.UserAgent || 'N/A'}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="p-2.5">
-                                            <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-                                                <Clock size={12} />
-                                                {formatDateTime(log.AccessTime)}
-                                            </div>
-                                        </td>
+                                        <td className="p-4 text-slate-500">{formatDateTime(user.CreatedAt)}</td>
                                     </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Create User Modal */}
             <UserCreateModalWithRoles

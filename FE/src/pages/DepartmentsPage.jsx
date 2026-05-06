@@ -24,6 +24,7 @@ export default function DepartmentsPage() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [formData, setFormData] = useState({ name: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ show: false, item: null });
 
   // Đa ngôn ngữ mở rộng
   const t = {
@@ -31,7 +32,7 @@ export default function DepartmentsPage() {
       dept: "Phòng Ban", pos: "Chức Vụ", add: "Thêm mới",
       search: "Tìm tên hoặc mã...", noData: "Không tìm thấy dữ liệu",
       actions: "Thao tác", confirmDelete: "Xóa mục này?",
-      stats: "Nhân sự", salary: "Quỹ lương", sync: "Đồng bộ Master-Slave",
+      stats: "Nhân sự", salary: "Quỹ lương", sync: "Làm mới",
       id: "Mã", name: "Tên gọi", finish: "Hoàn tất", update: "Cập nhật"
     },
 
@@ -39,7 +40,7 @@ export default function DepartmentsPage() {
       dept: "Departments", pos: "Positions", add: "Add New",
       search: "Search name/ID...", noData: "No data found",
       actions: "Actions", confirmDelete: "Confirm delete?",
-      stats: "Staff", salary: "Payroll", sync: "Sync Master-Slave",
+      stats: "Staff", salary: "Payroll", sync: "Refresh",
       id: "ID", name: "Name", finish: "Finish", update: "Update"
     }
   }[language || 'vi'];
@@ -91,18 +92,24 @@ export default function DepartmentsPage() {
   };
 
   const handleDelete = async (item) => {
-    const idKey = activeTab === 'dept' ? 'DepartmentID' : 'PositionID';
-    const name = activeTab === 'dept' ? item.DepartmentName : item.PositionName;
+    setConfirmModal({ show: true, item });
+  };
 
-    if (window.confirm(`${t.confirmDelete}\n[${name}]`)) {
-      try {
-        const endpoint = activeTab === 'dept' ? API_DEPT : API_POS;
-        await axios.delete(`${endpoint}/${item[idKey]}`);
-        fetchData();
-        showToast('Xóa thành công!', 'success');
-      } catch (err) {
-        showToast("Không thể xóa: " + (err.response?.data?.error || "Mục này đang có dữ liệu liên kết"), 'error');
-      }
+  const handleConfirmDelete = async () => {
+    const item = confirmModal.item;
+    if (!item) return;
+
+    const idKey = activeTab === 'dept' ? 'DepartmentID' : 'PositionID';
+
+    try {
+      const endpoint = activeTab === 'dept' ? API_DEPT : API_POS;
+      await axios.delete(`${endpoint}/${item[idKey]}`);
+      setConfirmModal({ show: false, item: null });
+      fetchData();
+      showToast('Xóa thành công!', 'success');
+    } catch (err) {
+      showToast("Không thể xóa: " + (err.response?.data?.error || "Mục này đang có dữ liệu liên kết"), 'error');
+      setConfirmModal({ show: false, item: null });
     }
   };
 
@@ -112,9 +119,9 @@ export default function DepartmentsPage() {
       const endpoint = activeTab === 'dept' ? API_DEPT : API_POS;
       await axios.post(`${endpoint}/sync`);
       fetchData();
-      showToast('Đồng bộ thành công!', 'success');
+
     } catch (err) {
-      showToast("Đồng bộ thất bại!", 'error');
+
     } finally { setLoading(false); }
   };
 
@@ -129,26 +136,9 @@ export default function DepartmentsPage() {
       {/* 1. HEADER & SEARCH */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-black uppercase border-l-4 border-blue-600 pl-3 leading-none italic">{t.dept}</h1>
 
         </div>
-        <div className="flex items-center gap-2">
-          <div className={`relative flex items-center rounded-xl border w-full md:w-72 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-            <Search size={14} className="absolute left-3 opacity-40" />
-            <input
-              type="text" placeholder={t.search}
-              className="bg-transparent border-none focus:ring-0 text-xs pl-10 pr-3 py-3 w-full font-medium"
-              value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <button
-            onClick={() => { setModalMode('create'); setFormData({ name: '' }); setShowModal(true); }}
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-500/25 shrink-0"
-          >
-            <Plus size={16} strokeWidth={3} />
-            <span className="hidden sm:inline">{t.add}</span>
-          </button>
-        </div>
+
       </div>
 
       {/* 2. TAB SELECTOR */}
@@ -178,6 +168,14 @@ export default function DepartmentsPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <div className={`relative flex items-center rounded-xl border w-full md:w-72 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+            <Search size={14} className="absolute left-3 opacity-40" />
+            <input
+              type="text" placeholder={t.search}
+              className="bg-transparent border-none focus:ring-0 text-xs pl-10 pr-3 py-2 w-full font-medium"
+              value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
           <button
             onClick={handleSync}
             disabled={loading}
@@ -186,6 +184,16 @@ export default function DepartmentsPage() {
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             {t.sync}
           </button>
+          <div className="flex items-center gap-2">
+
+            <button
+              onClick={() => { setModalMode('create'); setFormData({ name: '' }); setShowModal(true); }}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg font-semibold text-sm flex items-center gap-2 shadow-lg shadow-blue-600/20 transition-all"
+            >
+              <Plus size={16} strokeWidth={3} />
+              <span className="hidden sm:inline">{t.add}</span>
+            </button>
+          </div>
         </div>
       </div>
       {/* 3. TABLE AREA */}
@@ -276,7 +284,52 @@ export default function DepartmentsPage() {
         </div>
       </div>
 
-      {/* 4. MODAL (CREATE / EDIT) */}
+      {/* 4. CONFIRM DELETE MODAL */}
+      {confirmModal.show && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
+          <div className={`w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 ${isDarkMode ? 'bg-slate-900 border border-slate-800' : 'bg-white'}`}>
+            <div className="p-8 text-center">
+              <div className="mx-auto w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-4">
+                <Trash2 size={28} />
+              </div>
+              <h3 className="text-lg font-black mb-2 uppercase italic tracking-tight">Xác nhận xóa?</h3>
+              <p className="text-sm opacity-60 leading-relaxed">
+                Bạn có chắc chắn muốn xóa{' '}
+                <span className="font-bold text-blue-500">
+                  {activeTab === 'dept'
+                    ? confirmModal.item?.DepartmentName
+                    : confirmModal.item?.PositionName}
+                </span>
+                ?
+              </p>
+              {activeTab === 'dept' && confirmModal.item?.TotalEmployees > 0 && (
+                <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                  <p className="text-xs text-amber-500 font-semibold flex items-center justify-center gap-2">
+                    <AlertTriangle size={14} />
+                    Phòng ban này có {confirmModal.item.TotalEmployees} nhân viên
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="flex border-t border-slate-800/10">
+              <button
+                onClick={() => setConfirmModal({ show: false, item: null })}
+                className="flex-1 py-4 text-xs font-bold uppercase hover:bg-slate-500/5 transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 py-4 text-xs font-bold uppercase bg-red-600 text-white hover:bg-red-700 transition-colors"
+              >
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. MODAL (CREATE / EDIT) */}
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" onClick={() => setShowModal(false)} />

@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, text
-from werkzeug.security import generate_password_hash, check_password_hash
+import bcrypt
 from config import SQL_SERVER_PERMISSION_CONN
 
 class UserModel:
@@ -18,8 +18,8 @@ class UserModel:
 
     def register(self, username, password, email, phone=None, dob=None, gender=None):
         """Đăng ký user mới với mật khẩu được hash"""
-        # Hash password với method='pbkdf2:sha256'
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        # Hash password với bcrypt
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         
         # Kiểm tra username và email đã tồn tại chưa
         check_sql = """
@@ -32,7 +32,7 @@ class UserModel:
             return False, "Username hoặc Email đã tồn tại"
         
         sql = """
-            INSERT INTO [USER] (Username, [Password], Email, PhoneNumber, DateOfBirth, Gender, [Status])
+            INSERT INTO [USER] (Username, [PasswordHash], Email, PhoneNumber, DateOfBirth, Gender, [Status])
             VALUES (:username, :password, :email, :phone, :dob, :gender, 'ACTIVE')
         """
         try:
@@ -54,7 +54,7 @@ class UserModel:
         Trả về (True, UserID) nếu thành công, (False, Thông báo lỗi) nếu thất bại.
         """
         # 1. Lấy thông tin user
-        sql = "SELECT UserID, [Password], [Status] FROM [USER] WHERE Username = :username"
+        sql = "SELECT UserID, [PasswordHash], [Status] FROM [USER] WHERE Username = :username"
         result = self._execute(sql, {"username": username}, fetch=True)
         
         if not result:
@@ -67,19 +67,24 @@ class UserModel:
             return False, "Tài khoản của bạn đã bị khóa"
         
         # 3. Kiểm tra mật khẩu
-        if check_password_hash(user['Password'], password):
-            # Ghi log thành công
-            self._log_access(user['UserID'], "LOGIN_SUCCESS", ip_address, user_agent)
-            return True, user['UserID']
-        else:
-            # Ghi log thất bại
-            self._log_access(user['UserID'], "LOGIN_FAILED", ip_address, user_agent)
-            return False, "Mật khẩu không đúng"
+        try:
+            # Bcrypt check
+            if bcrypt.checkpw(password.encode('utf-8'), user['PasswordHash'].encode('utf-8')):
+                # Ghi log thành công
+                self._log_access(user['UserID'], "LOGIN_SUCCESS", ip_address, user_agent)
+                return True, user['UserID']
+            else:
+                # Ghi log thất bại
+                self._log_access(user['UserID'], "LOGIN_FAILED", ip_address, user_agent)
+                return False, "Mật khẩu không đúng"
+        except Exception as e:
+            print(f"Password check error: {e}")
+            return False, "Lỗi xác thực mật khẩu"
 
     def _log_access(self, user_id, action, ip, user_agent):
-        """Ghi lại hành động vào bảng UserAccessLog"""
+        """Ghi lại hành động vào bảng ACCESS_LOG"""
         sql = """
-            INSERT INTO [UserAccessLog] (UserID, Action, IPAddress, UserAgent)
+            INSERT INTO [ACCESS_LOG] (UserID, Action, IPAddress, UserAgent)
             VALUES (:uid, :action, :ip, :ua)
         """
         self._execute(sql, {"uid": user_id, "action": action, "ip": ip, "ua": user_agent})
@@ -98,7 +103,7 @@ class UserModel:
         # 2. Lấy lịch sử truy cập (sắp xếp theo thời gian mới nhất)
         sql_logs = """
             SELECT Action, IPAddress, UserAgent, AccessTime 
-            FROM [UserAccessLog] 
+            FROM [ACCESS_LOG] 
             WHERE UserID = :user_id 
             ORDER BY AccessTime DESC
         """
@@ -133,35 +138,54 @@ class UserModel:
         """
         sql = """
             SELECT 
-                L.Id AS LogID, L.UserID, U.Username, U.Email, 
+                L.LogID AS LogID, L.UserID, U.Username, U.Email, 
                 L.Action, L.IPAddress, L.UserAgent, L.AccessTime
-            FROM [UserAccessLog] L
+            FROM [ACCESS_LOG] L
             INNER JOIN [USER] U ON L.UserID = U.UserID
             ORDER BY L.AccessTime DESC
         """
         return self._execute(sql, fetch=True)
     def update_user(self, user_id, username=None, email=None, phone=None, dob=None, gender=None, status=None):
         """Cập nhật thông tin người dùng"""
-        sql = """
+        # Build dynamic SQL chỉ update các field không None
+        updates = []
+        params = {"user_id": user_id}
+        
+        if username is not None:
+            updates.append("Username = :username")
+            params["username"] = username
+        
+        if email is not None:
+            updates.append("Email = :email")
+            params["email"] = email
+        
+        if phone is not None:
+            updates.append("PhoneNumber = :phone")
+            params["phone"] = phone
+        
+        if dob is not None:
+            updates.append("DateOfBirth = :dob")
+            params["dob"] = dob
+        
+        if gender is not None:
+            updates.append("Gender = :gender")
+            params["gender"] = gender
+        
+        if status is not None:
+            updates.append("[Status] = :status")
+            params["status"] = status
+        
+        if not updates:
+            return True, "Không có gì để cập nhật"
+        
+        sql = f"""
             UPDATE [USER] 
-            SET Username = ISNULL(:username, Username),
-                Email = ISNULL(:email, Email),
-                PhoneNumber = ISNULL(:phone, PhoneNumber),
-                DateOfBirth = ISNULL(:dob, DateOfBirth),
-                Gender = ISNULL(:gender, Gender),
-                [Status] = ISNULL(:status, [Status])
+            SET {', '.join(updates)}
             WHERE UserID = :user_id
         """
+        
         try:
-            self._execute(sql, {
-                "user_id": user_id,
-                "username": username,
-                "email": email,
-                "phone": phone,
-                "dob": dob,
-                "gender": gender,
-                "status": status
-            })
+            self._execute(sql, params)
             return True, "Cập nhật thành công"
         except Exception as e:
             return False, f"Lỗi cập nhật: {str(e)}"
@@ -179,21 +203,25 @@ class UserModel:
         Thay đổi mật khẩu sau khi xác thực mật khẩu cũ.
         """
         # 1. Lấy mật khẩu cũ hiện tại từ database
-        sql_get_pwd = "SELECT [Password] FROM [USER] WHERE UserID = :user_id"
+        sql_get_pwd = "SELECT [PasswordHash] FROM [USER] WHERE UserID = :user_id"
         result = self._execute(sql_get_pwd, {"user_id": user_id}, fetch=True)
         
         if not result:
             return False, "Người dùng không tồn tại"
         
-        current_hashed_password = result[0]['Password']
+        current_hashed_password = result[0]['PasswordHash']
         
-        # 2. Kiểm tra mật khẩu cũ có đúng không
-        if not check_password_hash(current_hashed_password, old_password):
-            return False, "Mật khẩu cũ không chính xác"
+        # 2. Kiểm tra mật khẩu cũ có đúng không (dùng bcrypt)
+        try:
+            if not bcrypt.checkpw(old_password.encode('utf-8'), current_hashed_password.encode('utf-8')):
+                return False, "Mật khẩu cũ không chính xác"
+        except Exception as e:
+            print(f"Password check error: {e}")
+            return False, "Lỗi xác thực mật khẩu cũ"
         
-        # 3. Hash mật khẩu mới và update với method='pbkdf2:sha256'
-        new_hashed_password = generate_password_hash(new_password, method='pbkdf2:sha256')
-        sql_update = "UPDATE [USER] SET [Password] = :new_password WHERE UserID = :user_id"
+        # 3. Hash mật khẩu mới với bcrypt
+        new_hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        sql_update = "UPDATE [USER] SET [PasswordHash] = :new_password WHERE UserID = :user_id"
         
         try:
             self._execute(sql_update, {

@@ -98,7 +98,7 @@ class UserAdminModel:
                     WHERE UR.UserID = U.UserID
                     FOR XML PATH('')
                 ), 1, 1, '') AS UserRoles
-            FROM [UserAccessLog] UAL
+            FROM [ACCESS_LOG] UAL
             INNER JOIN [USER] U ON UAL.UserID = U.UserID
             ORDER BY UAL.AccessTime DESC
         """

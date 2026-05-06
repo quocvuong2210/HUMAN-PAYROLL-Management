@@ -3,9 +3,11 @@ RBAC Middleware - Middleware kiểm tra quyền truy cập
 """
 from functools import wraps
 from flask import request, jsonify
-from src.services.enhanced_auth_service import EnhancedAuthService
+from src.utils.jwt_rbac_helper import JWTRBACHelper
+from src.models.rbacModel import RBACModel
 
-auth_service = EnhancedAuthService()
+jwt_helper = JWTRBACHelper()
+rbac_model = RBACModel()
 
 def token_required(f):
     """
@@ -33,7 +35,7 @@ def token_required(f):
         token = auth_header.split(" ")[1]
         
         # Verify token
-        payload = auth_service.verify_access_token(token)
+        payload = jwt_helper.verify_access_token(token)
         
         if not payload:
             return jsonify({
@@ -76,7 +78,7 @@ def require_permission(function_name):
                 }), 401
             
             # Kiểm tra quyền
-            has_permission = auth_service.check_permission(user_id, function_name)
+            has_permission = rbac_model.check_user_permission(user_id, function_name)
             
             if not has_permission:
                 return jsonify({
@@ -113,7 +115,7 @@ def require_any_permission(*function_names):
             
             # Kiểm tra có ít nhất 1 quyền
             for func_name in function_names:
-                if auth_service.check_permission(user_id, func_name):
+                if rbac_model.check_user_permission(user_id, func_name):
                     return f(*args, **kwargs)
             
             return jsonify({
@@ -148,7 +150,7 @@ def require_all_permissions(*function_names):
             
             # Kiểm tra tất cả quyền
             for func_name in function_names:
-                if not auth_service.check_permission(user_id, func_name):
+                if not rbac_model.check_user_permission(user_id, func_name):
                     return jsonify({
                         "status": "error",
                         "message": f"Bạn thiếu quyền: {func_name}"
@@ -213,7 +215,7 @@ def optional_auth(f):
         
         # Có token - verify
         token = auth_header.split(" ")[1]
-        payload = auth_service.verify_access_token(token)
+        payload = jwt_helper.verify_access_token(token)
         
         if payload:
             kwargs["current_user_id"] = payload.get("user_id")

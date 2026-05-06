@@ -1,0 +1,29 @@
+### Test Login với Debug Chi Tiết
+POST http://localhost:5001/test/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### Fix Password cho Admin
+POST http://localhost:5001/test/fix-password
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### Check Hash
+POST http://localhost:5001/test/check-hash
+Content-Type: application/json
+
+{
+  "password": "admin123",
+  "hash": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEgEjqK"
+}
+
+### Server Info
+GET http://localhost:5001/test/info

@@ -1,25 +1,21 @@
 """
-Token Generator - Tạo random token cho email verification và password reset
+Token Generator - Tạo random token đơn giản
 """
 import secrets
-import string
 
 class TokenGenerator:
     @staticmethod
-    def generate_token(length=64):
+    def generate_token(length=32):
         """
-        Tạo random token an toàn
+        Tạo token ngẫu nhiên
         
         Args:
-            length: Độ dài token (default: 64)
-            
+            length: Độ dài token (default 32)
+        
         Returns:
-            str: Random token
+            str: Token string
         """
-        # Sử dụng secrets module (cryptographically strong)
-        alphabet = string.ascii_letters + string.digits
-        token = ''.join(secrets.choice(alphabet) for _ in range(length))
-        return token
+        return secrets.token_urlsafe(length)
     
     @staticmethod
     def generate_numeric_token(length=6):
@@ -27,9 +23,9 @@ class TokenGenerator:
         Tạo token số (dùng cho OTP)
         
         Args:
-            length: Độ dài token (default: 6)
-            
+            length: Độ dài (default 6)
+        
         Returns:
             str: Numeric token
         """
-        return ''.join(secrets.choice(string.digits) for _ in range(length))
+        return ''.join([str(secrets.randbelow(10)) for _ in range(length)])

@@ -1,0 +1,34 @@
+### Quick Test - Get Roles and Create User
+
+@baseUrl = http://localhost:5000/api/v1
+
+### 1. Login as admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### Copy access_token from response above and paste below
+@token = YOUR_TOKEN_HERE
+
+### 2. Get all roles (should work now)
+GET {{baseUrl}}/auth/roles
+Authorization: Bearer {{token}}
+
+### 3. Create user with roles
+POST {{baseUrl}}/auth/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "testuser123",
+  "email": "testuser123@company.com",
+  "password": "password123",
+  "phoneNumber": "0987654321",
+  "dateOfBirth": "1995-05-07",
+  "gender": "Nam",
+  "roleIds": [4]
+}

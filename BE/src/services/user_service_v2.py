@@ -4,7 +4,7 @@ Business logic for user creation with roles, email verification, and activity lo
 """
 from src.models.user_model_v2 import UserModelV2
 from src.models.roleModel import RoleModel
-from werkzeug.security import generate_password_hash
+import bcrypt
 import datetime
 
 class UserServiceV2:
@@ -58,8 +58,8 @@ class UserServiceV2:
             if self.user_model.check_user_exists(username, email):
                 return False, "Tên đăng nhập hoặc email đã tồn tại"
             
-            # 5. Hash password với method='pbkdf2:sha256'
-            hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+            # 5. Hash password với bcrypt
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             
             # 6. If no roles provided, get EMPLOYEE role ID as default
             if not role_ids or len(role_ids) == 0:

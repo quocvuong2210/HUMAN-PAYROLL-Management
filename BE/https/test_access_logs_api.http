@@ -1,0 +1,16 @@
+### Get Access Logs (Admin)
+GET http://localhost:5000/api/v1/admin/access-logs
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get Users with Roles (Admin)
+GET http://localhost:5000/api/v1/admin/users-with-roles
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Login to get token first
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}

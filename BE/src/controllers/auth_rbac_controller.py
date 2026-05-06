@@ -430,3 +430,30 @@ class AuthRBACController:
                 "status": "error",
                 "message": f"Lỗi server: {str(e)}"
             }), 500
+
+    # ==================== GET ALL ROLES ====================
+    
+    @jwt_required
+    def get_all_roles(self, **kwargs):
+        """
+        GET /api/v1/auth/roles
+        Lấy danh sách tất cả các roles (Yêu cầu đăng nhập)
+        
+        Headers:
+            - Authorization: Bearer <access_token>
+        
+        Response:
+            200: Danh sách roles
+            401: Chưa đăng nhập
+            500: Lỗi server
+        """
+        try:
+            result = self.auth_service.get_all_roles()
+            
+            return jsonify(result), 200
+            
+        except Exception as e:
+            return jsonify({
+                "status": "error",
+                "message": f"Lỗi server: {str(e)}"
+            }), 500

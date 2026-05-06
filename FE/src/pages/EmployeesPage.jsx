@@ -121,14 +121,26 @@ export default function EmployeesPage() {
   // --- 1. LẤY DANH MỤC PHÒNG BAN & CHỨC VỤ ---
   const fetchMetadata = async () => {
     try {
+      console.log('🔄 Fetching departments and positions...');
+      console.log('📍 API_DEPT:', API_DEPT);
+      console.log('📍 API_POS:', API_POS);
+
       const [deptRes, posRes] = await Promise.all([
         axios.get(API_DEPT),
         axios.get(API_POS)
       ]);
+
+      console.log('✅ Departments response:', deptRes.data);
+      console.log('✅ Positions response:', posRes.data);
+
       setDepartments(deptRes.data.data || []);
       setPositions(posRes.data.data || []);
+
+      console.log('📊 Departments set:', deptRes.data.data?.length || 0);
+      console.log('📊 Positions set:', posRes.data.data?.length || 0);
     } catch (err) {
-      console.error("Lỗi lấy metadata:", err);
+      console.error("❌ Lỗi lấy metadata:", err);
+      console.error("❌ Error details:", err.response?.data || err.message);
     }
   };
 
@@ -182,8 +194,13 @@ export default function EmployeesPage() {
       setSelectedEmp(emp);
       setFormData(formattedData);
     } else {
-      setSelectedEmp(null);
-      setFormData({
+      console.log('➕ Opening NEW employee form');
+      console.log('📊 Available departments:', departments.length);
+      console.log('📊 Available positions:', positions.length);
+      console.log('🏢 Departments:', departments);
+      console.log('💼 Positions:', positions);
+
+      const newFormData = {
         FullName: '', Email: '', PhoneNumber: '',
         DepartmentID: departments[0]?.DepartmentID || '',
         PositionID: positions[0]?.PositionID || '',
@@ -191,7 +208,12 @@ export default function EmployeesPage() {
         Gender: 'Nam',
         DateOfBirth: '',
         HireDate: new Date().toISOString().split('T')[0]
-      });
+      };
+
+      console.log('📝 New form data:', newFormData);
+
+      setSelectedEmp(null);
+      setFormData(newFormData);
     }
     setIsSidebarOpen(true);
   };

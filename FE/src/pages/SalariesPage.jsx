@@ -261,8 +261,8 @@ export default function HRManagementPage() {
             {loading ? <tr><td colSpan="9" className="text-center p-10"><Loader2 className="animate-spin inline" /></td></tr> :
               data.map((item) => (
                 <tr key={item.EmployeeID} className="border-t hover:bg-slate-500/5">
-                  <td className="p-4">{item.EmployeeID}</td>
-                  <td className="font-semibold">{item.FullName}</td>
+                  <td className="py-6 px-7">{item.EmployeeID}</td>
+                  <td className="font-bold text-sm ">{item.FullName}</td>
                   <td>
                     <div className="flex flex-col">
                       <span className="font-semibold text-blue-500">{item.DepartmentName}</span>

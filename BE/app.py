@@ -9,8 +9,6 @@ from src.routes.positionRoute import position_bp
 from src.routes.salaryRoute import salary_bp
 from src.routes.attendenceRoute import attendance_bp
 from src.routes.reportRoute import report_bp
-from src.routes.enhanced_auth_route import enhanced_auth_bp
-from src.routes.user_management_route import user_management_bp
 from src.routes.rbac_management_route import rbac_management_bp
 from src.routes.roleRoute import role_bp
 from src.routes.user_route_v2 import user_v2_bp
@@ -43,8 +41,6 @@ app.register_blueprint(user_v2_bp, url_prefix="/api/v1/auth")  # User V2 - Produ
 app.register_blueprint(user_admin_bp, url_prefix="/api/v1/admin")  # Admin - Users & Logs with RBAC
 
 # ==================== ALTERNATIVE AUTH ROUTES (V2) ====================
-app.register_blueprint(enhanced_auth_bp, url_prefix="/api/v2/auth")  # Enhanced Auth với Email Verification
-app.register_blueprint(user_management_bp, url_prefix="/api/v2/users")  # User Management
 app.register_blueprint(rbac_management_bp, url_prefix="/api/v2/rbac")  # RBAC Management
 
 # ==================== BUSINESS ROUTES ====================

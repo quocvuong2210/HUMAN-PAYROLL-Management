@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, User, AlertCircle, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
-
+import bgImage from '../images/background.jpg';
 export default function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -61,17 +61,21 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 font-sans relative overflow-hidden">
-            {/* Animated Background */}
-            <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute -top-[40%] -left-[20%] w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[150px] animate-pulse" />
-                <div className="absolute -bottom-[30%] -right-[20%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
-                <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] bg-purple-600/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
-            </div>
+        <div 
+  className="min-h-screen flex items-center justify-center p-6 font-sans relative overflow-hidden"
+  style={{
+    backgroundImage: `url(${bgImage})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat"
+  }}
+>
+  {/* Đảm bảo có một lớp phủ tối để chữ dễ đọc hơn */}
+            <div className="absolute inset-0 bg-black/50" />
 
             {/* Login Card */}
             <div className="w-full max-w-md relative z-10">
-                <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800/50 p-10 rounded-3xl shadow-2xl shadow-black/50">
+                <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 p-10 rounded-3xl shadow-2xl shadow-black/50">
 
                     {/* Brand Header */}
                     <div className="flex flex-col items-center mb-8">
@@ -87,7 +91,7 @@ export default function LoginPage() {
                         <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mt-2">Quản trị truy cập</p>
                     </div>
 
-                    <form onSubmit={handleLogin} className="space-y-5">
+                    <form onSubmit={handleLogin} className="space-y-4">
                         {error && (
                             <div className="flex items-center gap-2.5 bg-rose-500/10 text-rose-400 p-4 rounded-xl border border-rose-500/20 text-xs font-bold animate-in slide-in-from-top-2">
                                 <AlertCircle size={18} className="flex-shrink-0" />
@@ -140,7 +144,7 @@ export default function LoginPage() {
                                 </>
                             ) : (
                                 <>
-                                    <span>Đăng nhập</span>
+                                    <span>Login</span>
                                     <ArrowRight size={20} />
                                 </>
                             )}
@@ -152,9 +156,7 @@ export default function LoginPage() {
                         <p className="text-xs text-slate-500">
                             Hệ thống quản lý nhân sự
                         </p>
-                        <p className="text-[10px] text-slate-600 mt-1">
-                            © 2024 HR System. All rights reserved.
-                        </p>
+                      
                     </div>
                 </div>
             </div>

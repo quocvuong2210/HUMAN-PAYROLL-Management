@@ -1,0 +1,35 @@
+### Test Login với admin/admin123
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### Test Login với hr_manager/admin123
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "hr_manager",
+  "password": "admin123"
+}
+
+### Test Login với accountant/admin123
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "accountant",
+  "password": "admin123"
+}
+
+### Test Login với employee/admin123
+POST http://localhost:5000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "employee",
+  "password": "admin123"
+}

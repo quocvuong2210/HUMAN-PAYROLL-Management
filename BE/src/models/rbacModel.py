@@ -22,8 +22,14 @@ class RBACModel:
     
     def get_all_roles(self):
         """Lấy danh sách tất cả các role"""
-        sql = "SELECT RoleID, RoleName, Description, CreatedAt FROM [ROLE]"
+        sql = "SELECT RoleID, RoleName, Description FROM [ROLE]"
         return self._execute(sql, fetch=True)
+    
+    def get_role_by_id(self, role_id):
+        """Lấy thông tin role theo ID"""
+        sql = "SELECT RoleID, RoleName, Description FROM [ROLE] WHERE RoleID = :role_id"
+        result = self._execute(sql, {"role_id": role_id}, fetch=True)
+        return result[0] if result else None
     
     def create_role(self, role_name, description=None):
         """Tạo role mới"""

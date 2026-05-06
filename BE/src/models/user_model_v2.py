@@ -73,7 +73,7 @@ class UserModelV2:
         try:
             # 1. Insert user
             insert_sql = """
-                INSERT INTO [USER] (Username, [Password], Email, PhoneNumber, DateOfBirth, Gender, [Status], EmailVerified)
+                INSERT INTO [USER] (Username, [PasswordHash], Email, PhoneNumber, DateOfBirth, Gender, [Status], EmailVerified)
                 OUTPUT INSERTED.UserID
                 VALUES (:username, :password, :email, :phone, :dob, :gender, :status, 0)
             """
@@ -254,7 +254,7 @@ class UserModelV2:
     
     def log_activity(self, user_id, action, ip_address, user_agent):
         """
-        Ghi log hoạt động vào bảng UserAccessLog
+        Ghi log hoạt động vào bảng ACCESS_LOG
         
         Args:
             user_id: User ID
@@ -264,7 +264,7 @@ class UserModelV2:
         """
         try:
             sql = """
-                INSERT INTO [UserAccessLog] (UserID, Action, IPAddress, UserAgent)
+                INSERT INTO [ACCESS_LOG] (UserID, Action, IPAddress, UserAgent)
                 VALUES (:user_id, :action, :ip, :ua)
             """
             self._execute(sql, {

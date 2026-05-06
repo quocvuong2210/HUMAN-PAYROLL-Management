@@ -1,0 +1,82 @@
+### ========================================
+### TEST USER CREATION WITH ROLES
+### ========================================
+
+@baseUrl = http://localhost:5000/api/v1
+@token = YOUR_ACCESS_TOKEN_HERE
+
+### 1. Login as SUPER_ADMIN
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 2. Get All Roles (Lấy danh sách roles)
+GET {{baseUrl}}/auth/roles
+Authorization: Bearer {{token}}
+
+### 3. Create User with Roles (Tạo user mới với roles)
+POST {{baseUrl}}/auth/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "email": "newuser@company.com",
+  "password": "password123",
+  "phoneNumber": "0987654321",
+  "dateOfBirth": "1995-05-15",
+  "gender": "Nam",
+  "roleIds": [2, 4]
+}
+
+### 4. Create User with Single Role (HR_MANAGER)
+POST {{baseUrl}}/auth/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "hruser",
+  "email": "hruser@company.com",
+  "password": "password123",
+  "phoneNumber": "0123456789",
+  "dateOfBirth": "1990-01-01",
+  "gender": "Nữ",
+  "roleIds": [2]
+}
+
+### 5. Create User with Multiple Roles
+POST {{baseUrl}}/auth/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "multiuser",
+  "email": "multiuser@company.com",
+  "password": "password123",
+  "roleIds": [2, 3, 4]
+}
+
+### 6. Create User - Missing Required Fields (Should fail)
+POST {{baseUrl}}/auth/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "testuser"
+}
+
+### 7. Create User - Invalid Role ID (Should partially succeed)
+POST {{baseUrl}}/auth/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "invalidrole",
+  "email": "invalidrole@company.com",
+  "password": "password123",
+  "roleIds": [2, 999]
+}

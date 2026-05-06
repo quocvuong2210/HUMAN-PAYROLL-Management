@@ -40,6 +40,9 @@ auth_rbac_bp.route('/my-access-logs', methods=['GET'])(controller.get_my_access_
 
 # ==================== ADMIN ROUTES (SUPER_ADMIN ONLY) ====================
 
+# Get all roles (yêu cầu đăng nhập)
+auth_rbac_bp.route('/roles', methods=['GET'])(controller.get_all_roles)
+
 # Create user with roles
 auth_rbac_bp.route('/users', methods=['POST'])(controller.create_user_with_roles)
 

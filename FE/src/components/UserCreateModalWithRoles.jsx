@@ -29,13 +29,29 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
     const fetchRoles = async () => {
         setRolesLoading(true)
         try {
-            const res = await fetch(`${API_BASE}/api/v1/auth/roles`)
+            // Lấy token từ localStorage
+            const token = localStorage.getItem('access_token') || localStorage.getItem('accessToken') || localStorage.getItem('token')
+
+            console.log('🔑 Token:', token ? 'Found' : 'Not found')
+            console.log('🌐 API URL:', `${API_BASE}/api/v1/auth/roles`)
+
+            const res = await fetch(`${API_BASE}/api/v1/auth/roles`, {
+                headers: {
+                    'Authorization': `Bearer ${token}` // Thêm token vào header
+                }
+            })
             const data = await res.json()
+
+            console.log('📦 Roles response:', data)
+
             if (data.status === 'success') {
                 setRoles(data.data || [])
+                console.log('✅ Roles loaded:', data.data?.length || 0)
+            } else {
+                console.error('❌ Failed to load roles:', data.message)
             }
         } catch (err) {
-            console.error('Error fetching roles:', err)
+            console.error('❌ Error fetching roles:', err)
         } finally {
             setRolesLoading(false)
         }
@@ -118,9 +134,15 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
                 roleIds: formData.roleIds.length > 0 ? formData.roleIds : null // Nếu không chọn, backend sẽ set default
             }
 
+            // Lấy token từ localStorage
+            const token = localStorage.getItem('access_token') || localStorage.getItem('accessToken') || localStorage.getItem('token')
+
             const res = await fetch(`${API_BASE}/api/v1/auth/users`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Thêm token vào header
+                },
                 body: JSON.stringify(payload)
             })
 
@@ -233,10 +255,10 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
                                 value={formData.username}
                                 onChange={handleChange}
                                 className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm transition-colors ${errors.username
-                                        ? 'border-red-500 focus:ring-red-500'
-                                        : isDarkMode
-                                            ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
-                                            : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                    ? 'border-red-500 focus:ring-red-500'
+                                    : isDarkMode
+                                        ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                        : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                                     } ${isDarkMode ? 'text-white' : 'text-slate-800'}`}
                                 placeholder="Nhập tên đăng nhập"
                             />
@@ -259,10 +281,10 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
                                 value={formData.email}
                                 onChange={handleChange}
                                 className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm transition-colors ${errors.email
-                                        ? 'border-red-500 focus:ring-red-500'
-                                        : isDarkMode
-                                            ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
-                                            : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                    ? 'border-red-500 focus:ring-red-500'
+                                    : isDarkMode
+                                        ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                        : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                                     } ${isDarkMode ? 'text-white' : 'text-slate-800'}`}
                                 placeholder="example@email.com"
                             />
@@ -285,10 +307,10 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
                                 value={formData.password}
                                 onChange={handleChange}
                                 className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm transition-colors ${errors.password
-                                        ? 'border-red-500 focus:ring-red-500'
-                                        : isDarkMode
-                                            ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
-                                            : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                    ? 'border-red-500 focus:ring-red-500'
+                                    : isDarkMode
+                                        ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                        : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                                     } ${isDarkMode ? 'text-white' : 'text-slate-800'}`}
                                 placeholder="••••••••"
                             />
@@ -313,8 +335,8 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
                                     value={formData.phoneNumber}
                                     onChange={handleChange}
                                     className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm ${isDarkMode
-                                            ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
-                                            : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                        ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                        : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                                         } ${isDarkMode ? 'text-white' : 'text-slate-800'}`}
                                     placeholder="0123456789"
                                 />
@@ -333,8 +355,8 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
                                     value={formData.dateOfBirth}
                                     onChange={handleChange}
                                     className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm ${isDarkMode
-                                            ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
-                                            : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                        ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                        : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                                         } ${isDarkMode ? 'text-white' : 'text-slate-800'}`}
                                 />
                             </div>
@@ -351,8 +373,8 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
                             value={formData.gender}
                             onChange={handleChange}
                             className={`w-full px-4 py-2.5 rounded-xl border text-sm ${isDarkMode
-                                    ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
-                                    : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                ? 'bg-slate-800 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                                : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
                                 } ${isDarkMode ? 'text-white' : 'text-slate-800'}`}
                         >
                             <option value="Nam">Nam</option>
@@ -381,10 +403,10 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
                                             key={role.RoleID}
                                             onClick={() => handleRoleToggle(role.RoleID)}
                                             className={`p-3 rounded-xl border-2 transition-all cursor-pointer ${isSelected
-                                                    ? 'border-blue-500 bg-blue-500/5'
-                                                    : isDarkMode
-                                                        ? 'border-slate-700 hover:border-slate-600 bg-slate-800/50'
-                                                        : 'border-slate-200 hover:border-slate-300 bg-white'
+                                                ? 'border-blue-500 bg-blue-500/5'
+                                                : isDarkMode
+                                                    ? 'border-slate-700 hover:border-slate-600 bg-slate-800/50'
+                                                    : 'border-slate-200 hover:border-slate-300 bg-white'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between">
@@ -403,8 +425,8 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
                                                     </div>
                                                 </div>
                                                 <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${isSelected
-                                                        ? 'bg-blue-500 border-blue-500'
-                                                        : isDarkMode ? 'border-slate-600' : 'border-slate-300'
+                                                    ? 'bg-blue-500 border-blue-500'
+                                                    : isDarkMode ? 'border-slate-600' : 'border-slate-300'
                                                     }`}>
                                                     {isSelected && (
                                                         <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -447,8 +469,8 @@ export default function UserCreateModalWithRoles({ isOpen, onClose, isDarkMode, 
                             type="button"
                             onClick={handleCancel}
                             className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-colors ${isDarkMode
-                                    ? 'bg-slate-800 hover:bg-slate-700 text-white'
-                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+                                ? 'bg-slate-800 hover:bg-slate-700 text-white'
+                                : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
                                 }`}
                         >
                             Hủy

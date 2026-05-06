@@ -1,7 +1,7 @@
 import jwt
 import datetime
 from src.models.userModel import UserModel # Trỏ tới model bạn đã viết
-from werkzeug.security import generate_password_hash
+import bcrypt
 from src.utils.inspector import UserInspector
 
 class AuthService:

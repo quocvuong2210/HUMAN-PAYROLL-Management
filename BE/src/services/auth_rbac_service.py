@@ -495,3 +495,19 @@ class AuthRBACService:
             "status": "error",
             "message": message
         }
+
+    # ==================== GET ALL ROLES ====================
+    
+    def get_all_roles(self):
+        """
+        Lấy danh sách tất cả các roles
+        
+        Returns:
+            dict: Response với danh sách roles
+        """
+        roles = self.rbac_model.get_all_roles()
+        
+        return {
+            "status": "success",
+            "data": roles
+        }

@@ -1,6 +1,4 @@
-"""
-Role Controller - Quản lý vai trò người dùng
-"""
+
 from flask import jsonify, request
 from src.models.roleModel import RoleModel
 

@@ -1,6 +1,4 @@
-"""
-RBAC Management Controller - Quản lý Role, Permission, Function
-"""
+
 from flask import jsonify, request
 from src.services.rbac_management_service import RBACManagementService
 

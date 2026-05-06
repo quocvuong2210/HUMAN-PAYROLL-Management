@@ -33,19 +33,18 @@ CORS(app,
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      supports_credentials=True)
 
-# Đăng ký blueprint
+
 app.register_blueprint(dashboard_bp, url_prefix="/api/v1/dashboard")
 app.register_blueprint(alert_bp, url_prefix="/api/v1/alerts")
 
-# ==================== AUTH ROUTES (PRODUCTION) ====================
-# app.register_blueprint(auth_bp, url_prefix="/api/v1/auth")  # OLD - Commented out
-app.register_blueprint(auth_rbac_bp)  # NEW - Auth with RBAC (url_prefix already in blueprint)
 
-# ==================== RBAC ROUTES ====================
-app.register_blueprint(role_bp, url_prefix="/api/v1/auth")  # Role Management
-app.register_blueprint(user_v2_bp, url_prefix="/api/v1/auth")  # User V2 - Production RBAC
-app.register_blueprint(user_admin_bp, url_prefix="/api/v1/admin")  # Admin - Users & Logs with RBAC
 
+app.register_blueprint(auth_rbac_bp)  
+
+
+app.register_blueprint(role_bp, url_prefix="/api/v1/auth") 
+app.register_blueprint(user_v2_bp, url_prefix="/api/v1/auth")  
+app.register_blueprint(user_admin_bp, url_prefix="/api/v1/admin")  
 # ==================== ALTERNATIVE AUTH ROUTES (V2) ====================
 app.register_blueprint(rbac_management_bp, url_prefix="/api/v2/rbac")  # RBAC Management
 
@@ -60,11 +59,9 @@ app.register_blueprint(report_bp, url_prefix="/api/v1/reports")
 # ==================== EXPORT ROUTES ====================
 app.register_blueprint(export_bp, url_prefix="/api/v1/export")
 
-# ==================== DIVIDEND ROUTES ====================
+
 app.register_blueprint(dividend_bp, url_prefix="/api/v1")
 
-
-# Hiển thị JSON tiếng Việt đúng
 app.json.ensure_ascii = False
 
 @app.route("/")
@@ -73,12 +70,7 @@ def home():
 
 @app.route("/ip", methods=["GET"])
 def get_ip():
-    """
-    Trả về:
-    - IP LAN của client (theo Flask thấy)
-    - Nếu có X-Forwarded-For (proxy), lấy IP gốc đầu tiên
-    """
-    # Lấy IP client nội bộ
+ 
     x_forwarded_for = request.headers.get("X-Forwarded-For")
     client_ip_local = x_forwarded_for.split(",")[0].strip() if x_forwarded_for else request.remote_addr
 
@@ -87,7 +79,7 @@ def get_ip():
     })
 
 if __name__ == "__main__":
-    # Use configuration from config.py
+  
     app.run(
         debug=config.FLASK_DEBUG,
         host=config.FLASK_HOST,

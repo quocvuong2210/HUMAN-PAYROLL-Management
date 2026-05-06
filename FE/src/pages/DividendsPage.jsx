@@ -411,18 +411,10 @@ const DividendsPage = () => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm">
-                                                {new Date(dividend.DividendDate).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
+                                                {dividend.DividendDate || '-'}
                                             </td>
                                             <td className={`px-6 py-4 text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>
-                                                {dividend.CreatedAt ? new Date(dividend.CreatedAt).toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US', {
-                                                    year: 'numeric',
-                                                    month: '2-digit',
-                                                    day: '2-digit',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    second: '2-digit',
-                                                    hour12: false
-                                                }) : '-'}
+                                                {dividend.CreatedAt || '-'}
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">

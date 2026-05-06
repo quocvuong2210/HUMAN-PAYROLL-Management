@@ -1,11 +1,7 @@
 import { ShieldX, Home, ArrowLeft } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 
-/**
- * ForbiddenPage - 403 Error Page
- * 
- * Hiển thị khi user không có quyền truy cập trang
- */
+
 export default function ForbiddenPage() {
     const navigate = useNavigate()
 

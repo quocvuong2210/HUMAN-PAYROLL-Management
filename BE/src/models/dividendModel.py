@@ -30,11 +30,11 @@ class DividendModel:
                 D.EmployeeID,
                 E.FullName as EmployeeName,
                 D.DividendAmount,
-                D.DividendDate,
-                D.CreatedAt
+                CONVERT(VARCHAR, D.DividendDate, 23) as DividendDate,
+                CONVERT(VARCHAR, D.CreatedAt, 120) as CreatedAt
             FROM [Dividends] D
             INNER JOIN [Employees] E ON D.EmployeeID = E.EmployeeID
-            ORDER BY D.DividendDate DESC, D.CreatedAt DESC
+            ORDER BY D.CreatedAt DESC
         """
         try:
             return self._execute(sql, fetch=True)
@@ -50,12 +50,12 @@ class DividendModel:
                 D.EmployeeID,
                 E.FullName as EmployeeName,
                 D.DividendAmount,
-                D.DividendDate,
-                D.CreatedAt
+                CONVERT(VARCHAR, D.DividendDate, 23) as DividendDate,
+                CONVERT(VARCHAR, D.CreatedAt, 120) as CreatedAt
             FROM [Dividends] D
             INNER JOIN [Employees] E ON D.EmployeeID = E.EmployeeID
             WHERE D.EmployeeID = :employee_id
-            ORDER BY D.DividendDate DESC
+            ORDER BY D.CreatedAt DESC
         """
         try:
             return self._execute(sql, {"employee_id": employee_id}, fetch=True)
@@ -184,12 +184,12 @@ class DividendModel:
                 D.EmployeeID,
                 E.FullName as EmployeeName,
                 D.DividendAmount,
-                D.DividendDate,
-                D.CreatedAt
+                CONVERT(VARCHAR, D.DividendDate, 23) as DividendDate,
+                CONVERT(VARCHAR, D.CreatedAt, 120) as CreatedAt
             FROM [Dividends] D
             INNER JOIN [Employees] E ON D.EmployeeID = E.EmployeeID
             WHERE YEAR(D.DividendDate) = :year
-            ORDER BY D.DividendDate DESC
+            ORDER BY D.CreatedAt DESC
         """
         
         try:

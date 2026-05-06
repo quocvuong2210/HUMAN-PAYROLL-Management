@@ -150,19 +150,34 @@ export default function EmployeesPage() {
     try {
       const res = await axios.get(API_BASE, {
         params: {
-          ...filters,
+          name: filters.name,
+          dept_id: filters.dept_id,
+          pos_id: filters.pos_id,
+          status: filters.status,
+          gender: filters.gender,
+          start_date: filters.start_date,
+          end_date: filters.end_date,
           page: currentPage,
-          limit: pageSize // Đảm bảo API nhận tham số limit
+          limit: pageSize
         }
       });
-      const { data, totalPages, total_records } = res.data;
+
+      console.log('📊 API Response:', res.data);
+      console.log('📄 Total Pages:', res.data.total_pages);
+      console.log('📝 Total Records:', res.data.total_records);
+      console.log('📍 Current Page:', res.data.current_page);
+
+      const { data, total_pages, total_records } = res.data;
       setEmployees(data || []);
-      setTotalPages(totalPages || 1);
+      setTotalPages(total_pages || 1);
       setTotalRecords(total_records || 0);
+
+      console.log('✅ State updated - totalPages:', total_pages);
     } catch (err) {
+      console.error('❌ Error fetching employees:', err);
       showToast(t.msg.error, 'error');
     } finally { setLoading(false); }
-  }, [filters, currentPage, pageSize, t.msg.error]); // <--- Thêm pageSize vào đây
+  }, [filters, currentPage, pageSize, t.msg.error]);
   useEffect(() => {
     fetchMetadata();
   }, []);
@@ -382,14 +397,20 @@ export default function EmployeesPage() {
                 type="text" placeholder="Tìm tên nhân viên..."
                 className="bg-transparent border-none focus:ring-0 text-sm pl-10 pr-3 py-2 w-full"
                 value={filters.name}
-                onChange={(e) => setFilters({ ...filters, name: e.target.value, page: 1 })}
+                onChange={(e) => {
+                  setFilters({ ...filters, name: e.target.value });
+                  setCurrentPage(1);
+                }}
               />
             </div>
 
             {/* Lọc Phòng ban */}
             <select
               value={filters.dept_id}
-              onChange={(e) => setFilters({ ...filters, dept_id: e.target.value, page: 1 })}
+              onChange={(e) => {
+                setFilters({ ...filters, dept_id: e.target.value });
+                setCurrentPage(1);
+              }}
               className={`text-sm font-medium rounded-xs border px-3 py-2 outline-none cursor-pointer ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}
             >
               <option value="">Phòng ban</option>
@@ -399,7 +420,10 @@ export default function EmployeesPage() {
             {/* Lọc Trạng thái */}
             <select
               value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
+              onChange={(e) => {
+                setFilters({ ...filters, status: e.target.value });
+                setCurrentPage(1);
+              }}
               className={`text-sm font-medium rounded-xs border px-3 py-2 outline-none cursor-pointer ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}
             >
               <option value="">Trạng thái</option>
@@ -411,7 +435,10 @@ export default function EmployeesPage() {
 
             {/* Nút Reset */}
             <button
-              onClick={() => setFilters({ name: '', dept_id: '', pos_id: '', status: '', gender: '', start_date: '', end_date: '' })}
+              onClick={() => {
+                setFilters({ name: '', dept_id: '', pos_id: '', status: '', gender: '', start_date: '', end_date: '' });
+                setCurrentPage(1);
+              }}
               className="p-2.5 text-slate-500 hover:text-red-500 transition-colors"
               title="Xóa bộ lọc"
             >
@@ -424,7 +451,10 @@ export default function EmployeesPage() {
             {/* Chức vụ */}
             <select
               value={filters.pos_id}
-              onChange={(e) => setFilters({ ...filters, pos_id: e.target.value, page: 1 })}
+              onChange={(e) => {
+                setFilters({ ...filters, pos_id: e.target.value });
+                setCurrentPage(1);
+              }}
               className={`text-[12px] font-bold rounded-xl border px-3 py-2 outline-none ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}
             >
               <option value="">Chức vụ</option>
@@ -434,7 +464,10 @@ export default function EmployeesPage() {
             {/* Giới tính */}
             <select
               value={filters.gender}
-              onChange={(e) => setFilters({ ...filters, gender: e.target.value, page: 1 })}
+              onChange={(e) => {
+                setFilters({ ...filters, gender: e.target.value });
+                setCurrentPage(1);
+              }}
               className={`text-[12px] font-bold rounded-xl border px-3 py-2 outline-none ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}
             >
               <option value="">Giới tính</option>
@@ -448,14 +481,20 @@ export default function EmployeesPage() {
               <input
                 type="date"
                 value={filters.start_date}
-                onChange={(e) => setFilters({ ...filters, start_date: e.target.value, page: 1 })}
+                onChange={(e) => {
+                  setFilters({ ...filters, start_date: e.target.value });
+                  setCurrentPage(1);
+                }}
                 className={`text-[12px] rounded-lg border px-2 py-1.5 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}
               />
               <span className="opacity-30">→</span>
               <input
                 type="date"
                 value={filters.end_date}
-                onChange={(e) => setFilters({ ...filters, end_date: e.target.value, page: 1 })}
+                onChange={(e) => {
+                  setFilters({ ...filters, end_date: e.target.value });
+                  setCurrentPage(1);
+                }}
                 className={`text-[12px] rounded-lg border px-2 py-1.5 ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}
               />
             </div>
@@ -532,6 +571,26 @@ export default function EmployeesPage() {
                 <span className="text-[10px] font-bold uppercase opacity-50">
                   {t.filters.total}: <span className={isDarkMode ? 'text-white' : 'text-slate-900'}>{totalRecords}</span>
                 </span>
+
+                {/* Page Size Selector */}
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase opacity-50">Hiển thị:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1); // Reset về trang 1 khi thay đổi page size
+                    }}
+                    className={`text-xs font-bold rounded-lg border px-2 py-1 outline-none cursor-pointer ${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                  <span className="text-[10px] font-bold opacity-50">/ trang</span>
+                </div>
               </div>
 
               <div className="flex items-center gap-1">

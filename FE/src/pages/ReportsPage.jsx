@@ -107,7 +107,15 @@ export default function ReportsPage() {
   const lang = language || 'vi'
   const { showToast } = useToast()
 
-  const [month, setMonth] = useState('2024-09')
+  // Lấy tháng và năm hiện tại
+  const getCurrentMonth = () => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    return `${year}-${month}`
+  }
+
+  const [month, setMonth] = useState(getCurrentMonth())
   const [activeTab, setActiveTab] = useState('salary')
   const [isLoading, setIsLoading] = useState(false)
 

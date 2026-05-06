@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import {
   Home, Users, Building2, DollarSign, AlertTriangle,
   BarChart3, User, Box, ChevronLeft, ChevronRight,
-  ShieldCheck, Gift
+  ShieldCheck, Gift,
+  Bell
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -126,7 +127,7 @@ export default function SideBar({ isDarkMode, language }) {
           </p>
         )}
 
-        <NavItem icon={AlertTriangle} label={t.alerts} to="/alerts" isCollapsed={isCollapsed} isDarkMode={isDarkMode} />
+        <NavItem icon={Bell} label={t.alerts} to="/alerts" isCollapsed={isCollapsed} isDarkMode={isDarkMode} />
         <NavItem icon={BarChart3} label={t.reports} to="/reports" isCollapsed={isCollapsed} isDarkMode={isDarkMode} />
         <NavItem icon={User} label={t.profile} to="/profile" isCollapsed={isCollapsed} isDarkMode={isDarkMode} />
         <NavItem

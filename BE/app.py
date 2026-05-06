@@ -15,7 +15,6 @@ from src.routes.attendenceRoute import attendance_bp
 from src.routes.reportRoute import report_bp
 from src.routes.rbac_management_route import rbac_management_bp
 from src.routes.roleRoute import role_bp
-from src.routes.user_route_v2 import user_v2_bp
 from src.routes.user_admin_route import user_admin_bp
 from src.routes.export_route import export_bp
 from src.routes.dividendRoute import dividend_bp
@@ -43,7 +42,6 @@ app.register_blueprint(auth_rbac_bp)
 
 
 app.register_blueprint(role_bp, url_prefix="/api/v1/auth") 
-app.register_blueprint(user_v2_bp, url_prefix="/api/v1/auth")  
 app.register_blueprint(user_admin_bp, url_prefix="/api/v1/admin")  
 # ==================== ALTERNATIVE AUTH ROUTES (V2) ====================
 app.register_blueprint(rbac_management_bp, url_prefix="/api/v2/rbac")  # RBAC Management

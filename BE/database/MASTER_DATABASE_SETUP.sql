@@ -15,15 +15,15 @@ GO
 
 IF EXISTS (SELECT name FROM sys.databases WHERE name = N'PermissionDB')
 BEGIN
-    ALTER DATABASE [PermissionDB] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE [PermissionDB];
+    ALTER DATABASE [PERMISSION] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE [PERMISSION];
 END
 GO
 
-CREATE DATABASE [PermissionDB];
+CREATE DATABASE [PERMISSION];
 GO
 
-USE [PermissionDB];
+USE [PERMISSION];
 GO
 
 PRINT '✓ Database created successfully';
@@ -303,10 +303,10 @@ GO
 
 -- Password: admin123 (bcrypt hashed)
 INSERT INTO [USER] ([Username], [PasswordHash], [Email], [Status], [EmailVerified]) VALUES
-('admin', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEgEjqK', 'admin@company.com', 'ACTIVE', 1),
-('hr_manager', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEgEjqK', 'hr@company.com', 'ACTIVE', 1),
-('accountant', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEgEjqK', 'accountant@company.com', 'ACTIVE', 1),
-('employee', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEgEjqK', 'employee@company.com', 'ACTIVE', 1);
+('admin', '$2b$12$W3mD38T06UqLNOHQkavvReypqMe/FqNeHnnN5Q0SvJdvlKmM6lSkS', 'admin@company.com', 'ACTIVE', 1),
+('hr_manager', '$2b$12$W3mD38T06UqLNOHQkavvReypqMe/FqNeHnnN5Q0SvJdvlKmM6lSkS', 'hr@company.com', 'ACTIVE', 1),
+('accountant', '$2b$12$W3mD38T06UqLNOHQkavvReypqMe/FqNeHnnN5Q0SvJdvlKmM6lSkS', 'accountant@company.com', 'ACTIVE', 1),
+('employee', '$2b$12$W3mD38T06UqLNOHQkavvReypqMe/FqNeHnnN5Q0SvJdvlKmM6lSkS', 'employee@company.com', 'ACTIVE', 1);
 
 -- Assign roles to sample users
 INSERT INTO [USER_ROLE] ([UserID], [RoleID])

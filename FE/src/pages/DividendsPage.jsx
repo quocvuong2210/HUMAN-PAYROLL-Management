@@ -300,44 +300,71 @@ const DividendsPage = () => {
             </div>
 
             {/* Statistics Cards */}
-            {statistics && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className={`p-5 rounded-xl border shadow-sm ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                                <Gift size={18} className="text-blue-500" />
-                            </div>
-                            <p className="text-xs font-black text-slate-500 uppercase tracking-wider">{t.totalDividends}</p>
-                        </div>
-                        <p className="text-3xl font-black text-blue-600">{statistics.TotalDividends}</p>
-                    </div>
-                    <div className={`p-5 rounded-xl border shadow-sm ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                                <DollarSign size={18} className="text-green-500" />
-                            </div>
-                            <p className="text-xs font-black text-slate-500 uppercase tracking-wider">{t.totalAmount}</p>
-                        </div>
-                        <p className="text-3xl font-black text-green-600">
-                            {formatCurrency(statistics.TotalAmount)}
-                        </p>
-                    </div>
-                    <div className={`p-5 rounded-xl border shadow-sm ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                                <TrendingUp size={18} className="text-purple-500" />
-                            </div>
-                            <p className="text-xs font-black text-slate-500 uppercase tracking-wider">{t.average}</p>
-                        </div>
-                        <p className="text-3xl font-black text-purple-600">
-                            {formatCurrency(statistics.AverageAmount)}
-                        </p>
-                    </div>
-                </div>
-            )}
+           {statistics && (
+  <div className="flex flex-wrap gap-4">
+    
+    {/* CARD 1 */}
+    <div className={`flex items-center justify-between flex-1 min-w-[280px] p-4 border rounded-xl shadow-sm 
+      ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
+
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+          <Gift size={18} className="text-blue-500" />
+        </div>
+
+        <p className="text-sm font-semibold text-slate-500">
+          {t.totalDividends}
+        </p>
+      </div>
+
+      <p className="text-xl font-bold text-blue-600">
+        {statistics.TotalDividends}
+      </p>
+    </div>
+
+    {/* CARD 2 */}
+    <div className={`flex items-center justify-between flex-1 min-w-[280px] p-4 border rounded-xl shadow-sm 
+      ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
+
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+          <DollarSign size={18} className="text-green-500" />
+        </div>
+
+        <p className="text-sm font-semibold text-slate-500">
+          {t.totalAmount}
+        </p>
+      </div>
+
+      <p className="text-xl font-bold text-green-600">
+        {formatCurrency(statistics.TotalAmount)}
+      </p>
+    </div>
+
+    {/* CARD 3 */}
+    <div className={`flex items-center justify-between flex-1 min-w-[280px] p-4 border rounded-xl shadow-sm 
+      ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
+
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+          <TrendingUp size={18} className="text-purple-500" />
+        </div>
+
+        <p className="text-sm font-semibold text-slate-500">
+          {t.average}
+        </p>
+      </div>
+
+      <p className="text-xl font-bold text-purple-600">
+        {formatCurrency(statistics.AverageAmount)}
+      </p>
+    </div>
+
+  </div>
+)}
 
             {/* Filters */}
-            <div className={`p-4 rounded-xl border shadow-sm ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <div className={`p-4  border shadow-sm ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
                 <div className="flex gap-4 items-center">
                     <div className="flex items-center gap-2">
                         <Calendar size={16} className="text-slate-400" />
@@ -357,7 +384,7 @@ const DividendsPage = () => {
             </div>
 
             {/* Table */}
-            <div className={`flex-1 rounded-xl border shadow-sm flex flex-col overflow-hidden ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <div className={`flex-1  border shadow-sm flex flex-col ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
                 {loading ? (
                     <div className="flex-1 flex items-center justify-center">
                         <div className="text-center">

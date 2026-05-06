@@ -1,0 +1,85 @@
+### ============================================
+### DIVIDENDS API TESTING
+### ============================================
+
+@baseUrl = http://localhost:5000/api/v1
+@token = YOUR_TOKEN_HERE
+
+### 1. Lấy tất cả thưởng
+GET {{baseUrl}}/dividends
+Authorization: Bearer {{token}}
+
+### 2. Lấy thưởng của nhân viên (ID = 1)
+GET {{baseUrl}}/dividends/employee/1
+Authorization: Bearer {{token}}
+
+### 3. Lấy chi tiết 1 thưởng (ID = 1)
+GET {{baseUrl}}/dividends/1
+Authorization: Bearer {{token}}
+
+### 4. Tạo thưởng mới
+POST {{baseUrl}}/dividends
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "employee_id": 1,
+  "amount": 5000000,
+  "date": "2026-01-15",
+  "type": "YEAR_END",
+  "description": "Thưởng cuối năm 2025",
+  "status": "PENDING"
+}
+
+### 5. Tạo thưởng - Bonus
+POST {{baseUrl}}/dividends
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "employee_id": 2,
+  "amount": 3000000,
+  "date": "2026-03-01",
+  "type": "BONUS",
+  "description": "Thưởng hoàn thành dự án",
+  "status": "APPROVED"
+}
+
+### 6. Cập nhật thưởng (ID = 1)
+PUT {{baseUrl}}/dividends/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 6000000,
+  "status": "APPROVED"
+}
+
+### 7. Cập nhật trạng thái thành PAID
+PUT {{baseUrl}}/dividends/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "PAID"
+}
+
+### 8. Xóa thưởng (ID = 1)
+DELETE {{baseUrl}}/dividends/1
+Authorization: Bearer {{token}}
+
+### 9. Thống kê tất cả thưởng
+GET {{baseUrl}}/dividends/statistics
+Authorization: Bearer {{token}}
+
+### 10. Thống kê thưởng của nhân viên (ID = 1)
+GET {{baseUrl}}/dividends/statistics?employee_id=1
+Authorization: Bearer {{token}}
+
+### 11. Lấy thưởng theo năm 2026
+GET {{baseUrl}}/dividends/year/2026
+Authorization: Bearer {{token}}
+
+### 12. Lấy thưởng theo năm 2025
+GET {{baseUrl}}/dividends/year/2025
+Authorization: Bearer {{token}}

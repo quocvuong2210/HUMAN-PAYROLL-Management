@@ -14,6 +14,7 @@ from src.routes.roleRoute import role_bp
 from src.routes.user_route_v2 import user_v2_bp
 from src.routes.user_admin_route import user_admin_bp
 from src.routes.export_route import export_bp
+from src.routes.dividendRoute import dividend_bp
 
 
 from flask_cors import CORS
@@ -53,6 +54,9 @@ app.register_blueprint(report_bp, url_prefix="/api/v1/reports")
 
 # ==================== EXPORT ROUTES ====================
 app.register_blueprint(export_bp, url_prefix="/api/v1/export")
+
+# ==================== DIVIDEND ROUTES ====================
+app.register_blueprint(dividend_bp, url_prefix="/api/v1")
 
 
 # Hiển thị JSON tiếng Việt đúng

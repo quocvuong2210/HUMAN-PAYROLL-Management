@@ -11,6 +11,7 @@ import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import AccessLogsPage from "./pages/AccessLogsPage";
 import ForbiddenPage from "./pages/ForbiddenPage";
+import DividendsPage from "./pages/DividendsPage";
 import { ToastProvider } from './contexts/ToastContext';
 
 
@@ -32,7 +33,7 @@ function App() {
               </ProtectedRoute>
             }
           >
-            
+
             <Route index element={<DashboardPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="alerts" element={<AlertsPage />} />
@@ -77,9 +78,17 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="dividends"
+              element={
+                <ProtectedRoute requiredRoles={['SUPER_ADMIN', 'HR_MANAGER', 'PAYROLL_ACCOUNTANT']}>
+                  <DividendsPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
-   
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

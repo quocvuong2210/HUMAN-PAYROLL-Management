@@ -76,12 +76,32 @@ export default function DashboardPage() {
 
     setError(null);
     try {
+      const token = localStorage.getItem('token');
       const params = `?month=${selectedMonth}&year=${selectedYear}`;
+
+      console.log('🔍 Fetching dashboard data...', {
+        baseUrl: API_BASE,
+        params,
+        hasToken: !!token
+      });
+
       const [resCharts, resSummary, resAlerts] = await Promise.all([
-        axios.get(`${API_BASE}/charts${params}&view_mode=month`),
-        axios.get(`${API_BASE}/summary`),
-        axios.get(`${API_BASE}/alerts${params}`)
+        axios.get(`${API_BASE}/charts${params}&view_mode=month`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        }),
+        axios.get(`${API_BASE}/summary`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        }),
+        axios.get(`${API_BASE}/alerts${params}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        })
       ]);
+
+      console.log('✅ Dashboard data loaded:', {
+        charts: resCharts.data,
+        summary: resSummary.data,
+        alerts: resAlerts.data
+      });
 
       // Kiểm tra dữ liệu trước khi set
       if (!resCharts.data?.charts || !resSummary.data?.data) {
@@ -93,7 +113,12 @@ export default function DashboardPage() {
       console.log("Fetched alerts:", resSummary.data.data);
       setAlerts(resAlerts.data.data || []);
     } catch (err) {
-      console.error("Lỗi:", err);
+      console.error("❌ Dashboard error:", err);
+      console.error("Error details:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
       setError(language === 'vi' ? "Không thể tải dữ liệu. Vui lòng thử lại!" : "Failed to load data.");
     } finally {
 
@@ -297,8 +322,10 @@ export default function DashboardPage() {
                     }}
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-slate-400 text-sm">
-                    Đang tải dữ liệu...
+                  <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                    <div className="text-4xl mb-2">📊</div>
+                    <p className="text-sm font-medium">Không có dữ liệu</p>
+                    <p className="text-xs mt-1">Chọn tháng khác hoặc thêm dữ liệu lương</p>
                   </div>
                 )}
               </div>
@@ -365,8 +392,10 @@ export default function DashboardPage() {
                     }}
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-slate-400 text-sm">
-                    Đang tải dữ liệu...
+                  <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                    <div className="text-4xl mb-2">📈</div>
+                    <p className="text-sm font-medium">Không có dữ liệu</p>
+                    <p className="text-xs mt-1">Chọn tháng khác hoặc thêm dữ liệu lương</p>
                   </div>
                 )}
               </div>

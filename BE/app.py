@@ -1,4 +1,8 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
+import config
+
+# Import routes
 from src.routes.dashboardRoute import dashboard_bp
 from src.routes.alertRoute import alert_bp
 # from src.routes.authRoute import auth_bp  # OLD - Commented out
@@ -16,14 +20,15 @@ from src.routes.user_admin_route import user_admin_bp
 from src.routes.export_route import export_bp
 from src.routes.dividendRoute import dividend_bp
 
-
-from flask_cors import CORS
-
 app = Flask(__name__)
 
-# CORS Configuration - Allow all origins for development
+# Load configuration from config.py (which reads from .env)
+app.config['JWT_SECRET_KEY'] = config.JWT_SECRET_KEY
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = config.JWT_ACCESS_TOKEN_EXPIRES
+
+# CORS Configuration - Use origins from config
 CORS(app, 
-     resources={r"/api/*": {"origins": "*"}},
+     resources={r"/api/*": {"origins": config.CORS_ORIGINS}},
      allow_headers=["Content-Type", "Authorization"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      supports_credentials=True)
@@ -82,5 +87,9 @@ def get_ip():
     })
 
 if __name__ == "__main__":
-    # host=0.0.0.0 để truy cập từ mạng khác
-    app.run(debug=True, host="0.0.0.0")
+    # Use configuration from config.py
+    app.run(
+        debug=config.FLASK_DEBUG,
+        host=config.FLASK_HOST,
+        port=config.FLASK_PORT
+    )
